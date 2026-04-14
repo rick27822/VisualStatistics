@@ -1,58 +1,77 @@
-# C++ objects and libs
-*.slo
-*.lo
-*.o
-*.a
-*.la
-*.lai
-*.so
-*.so.*
-*.dll
-*.dylib
+# Qt Creator Clangd 缓存（新增核心规则）
+.qtc_clangd/
 
-# Qt-es
-object_script.*.Release
-object_script.*.Debug
-*_plugin_import.cpp
-/.qmake.cache
-/.qmake.stash
+# 构建目录
+build/
+build-*/
+*-Debug/
+*-Release/
+*-debug/
+*-release/
+debug/
+release/
+bin/
+obj/
+tmp/
+temp/
+
+# Qt 项目文件
 *.pro.user
 *.pro.user.*
 *.qbs.user
 *.qbs.user.*
+CMakeLists.txt.user
+CMakeLists.txt.user.*
+*.creator
+*.creator.user
+*.creator.user.*
+*.files
+*.files.*
+*.includes
+*.config
+*.cflags
+*.cxxflags
+
+# 编译产物
+*.o
+*.obj
+*.so
+*.so.*
+*.dll
+*.dylib
+*.a
+*.lib
+*.exe
+*.app
+*.out
+Makefile
+Makefile.*
 *.moc
 moc_*.cpp
-moc_*.h
-qrc_*.cpp
 ui_*.h
-*.qmlc
-*.jsc
-Makefile*
-*build-*
+qrc_*.cpp
+*.qrc.depends
 *.qm
-*.prl
+*.ts.bak
 
-# Qt unit tests
-target_wrapper.*
+# IDE 配置
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.log
 
-# QtCreator
-*.autosave
+# 系统文件
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 
-# QtCreator Qml
-*.qmlproject.user
-*.qmlproject.user.*
-
-# QtCreator CMake
-CMakeLists.txt.user*
-
-# QtCreator 4.8< compilation database
-compile_commands.json
-
-# QtCreator local machine specific files for imported projects
-*creator.user*
-
-#git
+# Git 本身
 .git/
 .gitignore
-
 *_qmlcache.qrc
