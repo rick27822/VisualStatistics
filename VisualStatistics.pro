@@ -12,10 +12,12 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    math/distributionmodel.cpp \
     qcustomplot.cpp
 
 HEADERS += \
     mainwindow.h \
+    math/distributionmodel.h \
     qcustomplot.h
 
 FORMS += \
