@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sliderSigma, &QSlider::valueChanged, this, &MainWindow::onParameterChanged);
 
     onParameterChanged();
+    this->setStyleSheet(
+        "QWidget { background-color: #121212; color: white; font-family: 'Arial'; }"
+        "QSlider::handle:horizontal { background: #00FFF2; width: 18px; border-radius: 9px; }"
+        "QSlider::groove:horizontal { background: #333; height: 4px; }"
+        );
 }
 
 void MainWindow::setupNormalPlot(){
@@ -37,7 +42,7 @@ void MainWindow::setupNormalPlot(){
     //美化(画笔与坐标轴）
     QPen pen;
     pen.setColor(QColor(40,110,255));
-    pen.setWidth(2.5);
+    pen.setWidth(3);
     ui->customPlot->graph(0)->setPen(pen);
 
     ui->customPlot->xAxis->setLabel("x(Random Variable");
@@ -57,6 +62,7 @@ void MainWindow::updatePlot(){
         y[i]=DistributionModel::normalPDF(x[i],m_mu,m_sigma);
     }
     ui->customPlot->graph(0)->setData(x,y);
+    ui->customPlot->yAxis->setRange(0, 1);
     ui->customPlot->replot();
 }
 void MainWindow::onParameterChanged(){
