@@ -7,12 +7,14 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setupNormalPlot();
+    m_currentDist = new NormalDistribution(0.0, 1.0);
+
     setupInitialStyle();
+
 
     connect(ui->sliderMu, &QSlider::valueChanged, this, &MainWindow::onParameterChanged);
     connect(ui->sliderSigma, &QSlider::valueChanged, this, &MainWindow::onParameterChanged);
-
+    setupNormalPlot();
     onParameterChanged();
     this->setStyleSheet(
         "QWidget { background-color: #121212; color: white; font-family: 'Arial'; }"
@@ -22,56 +24,56 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupNormalPlot(){
-    double mu = 0.0;
-    double sigma =1.0;
-    //采样数据
-    int count =1000;
-    QVector<double> x(count),y(count);
-    double start = mu-5*sigma;
-    double end = mu+5*sigma;
-    double step = (end-start)/(count-1);
-
-    for(int i=0;i<count;i++)
-    {
-        x[i]=start+i*step;
-        y[i]=DistributionModel::normalPDF(x[i],mu,sigma);
+    if (!m_currentDist) {
+        m_currentDist = new NormalDistribution(0.0, 1.0);
     }
-    //配置QCutomPlot
-    ui->customPlot->addGraph();//添加曲线
-    ui->customPlot->graph(0)->setData(x,y);//填充数据
-    //美化(画笔与坐标轴）
-    QPen pen;
-    pen.setColor(QColor(40,110,255));
-    pen.setWidth(3);
-    ui->customPlot->graph(0)->setPen(pen);
-
-    ui->customPlot->xAxis->setLabel("x(Random Variable");
-    ui->customPlot->yAxis->setLabel("f(X)(Probability Density)");
-    ui->customPlot->rescaleAxes();
-    ui->customPlot->replot();
+    updatePlot();
 }
 void MainWindow::updatePlot(){
-    int count =1000;
-    QVector<double> x(count),y(count);
-    double start = m_mu-5*m_sigma;
-    double end = m_mu+5*m_sigma;
-    double step = (end-start)/(count-1);
-    for(int i=0;i<count;i++)
-    {
-        x[i]=start+i*step;
-        y[i]=DistributionModel::normalPDF(x[i],m_mu,m_sigma);
+    if (!m_currentDist) return;
+    //获取范围
+    QPair<double, double> range = m_currentDist->getSuggestedRange();
+    double start = range.first;
+    double end = range.second;
+
+    int count = 1000;
+    QVector<double> x(count), y(count);
+    double step = (end - start) / (count - 1);
+
+    for (int i = 0; i < count; ++i) {
+        x[i] = start + i * step;
+        y[i] = m_currentDist->calculate(x[i]);
     }
-    ui->customPlot->graph(0)->setData(x,y);
-    ui->customPlot->yAxis->setRange(0, 1);
+
+    ui->customPlot->graph(0)->setData(x, y);
+    ui->customPlot->graph(0)->rescaleAxes();
+    //坐标轴范围缩放
+    double maxY = ui->customPlot->yAxis->range().upper;
+    if (maxY > 1.0) {
+        ui->customPlot->yAxis->setRange(0, maxY * 1.2);
+    } else {
+        ui->customPlot->yAxis->setRange(0, 1.0);
+    }
+    double mu = ui->sliderMu->value() / 10.0;
+    double threshold = m_viewWidth * 0.3;
+    if (std::abs(mu - m_currentXViewCenter) > threshold) {
+        // 更新视野中心，让视野重新对准 mu
+        m_currentXViewCenter = mu;
+    }
+    ui->customPlot->xAxis->setRange(m_currentXViewCenter - m_viewWidth/2.0,m_currentXViewCenter + m_viewWidth/2.0);
     ui->customPlot->replot();
 }
 void MainWindow::onParameterChanged(){
+    if (!m_currentDist) return;
     //获取滑块值
-    m_mu=ui->sliderMu->value()/10.0;
-    m_sigma=ui->sliderSigma->value()/10.0;
+    double val1 = ui->sliderMu->value() / 10.0;
+    double val2 = ui->sliderSigma->value() / 10.0;
+    if(m_currentDist) {
+        m_currentDist->setParameters(val1, val2);
+    }
     //更新数值显示标签
-    ui->labelMu->setText(QString("均值 (μ): %1").arg(m_mu));
-    ui->labelSigma->setText(QString("标准差 (σ): %1").arg(m_sigma));
+    ui->labelMu->setText(QString("%1: %2").arg(m_currentDist->getParam1Name()).arg(val1));
+    ui->labelSigma->setText(QString("%1: %2").arg(m_currentDist->getParam2Name()).arg(val2));
 
     updatePlot();
 }
@@ -90,7 +92,7 @@ void MainWindow::setupInitialStyle(){
     graphPen.setColor(QColor(0,255,242));
     graphPen.setWidth(3.0);
     ui->customPlot->graph(0)->setPen(graphPen);
-
+    ui->customPlot->graph(0)->setBrush(QBrush(QColor(0, 255, 242, 30)));
     ui->customPlot->axisRect()->setupFullAxesBox(false);//去掉多余边框
 
 }

@@ -1,12 +1,12 @@
 #include "distributionmodel.h"
+#include<cmath>
+#include<algorithm>
 
-double DistributionModel::normalPDF(double x,double mu,double sigma) {
-    //防止除0错误，保证方差有效
-    if(sigma<=0)
-        return 0;
-    //系数
-    double coefficient = 1.0/(sigma*sqrt(2*M_PI));
-    //指数
-    double exponent = -0.5*pow((x-mu)/sigma,2);
-    return coefficient*exp(exponent);
+double NormalDistribution::calculate(double x) const {
+    double exponent = -0.5 * std::pow((x - m_mu) / m_sigma, 2);
+    return (1.0 / (m_sigma * std::sqrt(2.0 * M_PI))) * std::exp(exponent);
+}
+
+QPair<double, double> NormalDistribution::getSuggestedRange() const {
+    return qMakePair(m_mu - 5 * m_sigma, m_mu + 5 * m_sigma);
 }

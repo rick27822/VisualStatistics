@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include"math/distributionmodel.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -21,12 +22,13 @@ private:
     Ui::MainWindow *ui;
     void setupNormalPlot();
     void setupInitialStyle();
+    BaseDistribution* m_currentDist = nullptr;
 private slots:
     //统一处理滑块变化的槽函数
     void onParameterChanged();
 private:
     void updatePlot();//刷新图像
-    double m_mu =0.0;
-    double m_sigma= 1.0;
+    double m_currentXViewCenter = 0.0;
+    double m_viewWidth = 10.0;
 };
 #endif // MAINWINDOW_H
