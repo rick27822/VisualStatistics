@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ,m_mode(RenderMode::PMF)
 {
     ui->setupUi(this);
-    m_currentDist = new BinomialDistribution(5,5);//测试用
+    m_currentDist = new NormalDistribution(5,5);//测试用
 
     setupInitialStyle();
 
@@ -74,11 +74,19 @@ void MainWindow::plotContinuousDistribution(double start, double end) {
     int count = 1000;
     QVector<double> x(count), y(count);
     double step = (end - start) / (count - 1);
-
+    if (m_mode == RenderMode::PMF){
     for (int i = 0; i < count; ++i) {
         x[i] = start + i * step;
         y[i] = m_currentDist->calculate(x[i]);
     }
+    }
+    else{
+        for (int i = 0; i < count; ++i) {
+            x[i] = start + i * step;
+            y[i] = m_currentDist->calculateCDF(x[i]);
+        }
+    }
+
     ui->customPlot->addGraph();
     ui->customPlot->graph(0)->setData(x, y);
     ui->customPlot->graph(0)->rescaleAxes();

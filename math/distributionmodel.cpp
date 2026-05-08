@@ -6,7 +6,9 @@ double NormalDistribution::calculate(double x) const {
     double exponent = -0.5 * std::pow((x - m_mu) / m_sigma, 2);
     return (1.0 / (m_sigma * std::sqrt(2.0 * M_PI))) * std::exp(exponent);
 }
-
+double NormalDistribution::calculateCDF(double x) const {
+    return 0.5 * (1.0 + std::erf((x - m_mu) / (m_sigma * std::sqrt(2.0))));
+}
 QPair<double, double> NormalDistribution::getSuggestedRange() const {
     return qMakePair(m_mu - 5 * m_sigma, m_mu + 5 * m_sigma);
 }

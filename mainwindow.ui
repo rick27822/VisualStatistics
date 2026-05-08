@@ -30,7 +30,7 @@
       <item>
        <widget class="QPushButton" name="btnToggleMode">
         <property name="text">
-         <string>PushButton</string>
+         <string>切换至累计分布（CDF）</string>
         </property>
        </widget>
       </item>
