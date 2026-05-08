@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    m_currentDist = new NormalDistribution(0.0, 1.0);//测试用
+    m_currentDist = new BinomialDistribution(5,5);//测试用
 
     setupInitialStyle();
 
@@ -31,6 +31,7 @@ void MainWindow::setupPlot(){
 }
 void MainWindow::updatePlot(){
     if (!m_currentDist) return;
+    ui->customPlot->clearPlottables();
     //获取范围
     QPair<double, double> range = m_currentDist->getSuggestedRange();
     double start = range.first;
@@ -43,13 +44,16 @@ void MainWindow::updatePlot(){
         plotDiscreteDistribution(start, end);
     }
     //坐标轴范围缩放
-    double maxY = ui->customPlot->yAxis->range().upper;
-    if (maxY > 1.0) {
-        ui->customPlot->yAxis->setRange(0, maxY * 1.2);
-    } else {
-        ui->customPlot->yAxis->setRange(0, 1.0);
+    ui->customPlot->yAxis->rescale();
+    double upperBound = ui->customPlot->yAxis->range().upper;
+    ui->customPlot->yAxis->setRange(0, upperBound * 1.2);
+    if(m_currentDist->getCategory() == DistributionCategory::Continuous)
+    {
+        ui->customPlot->xAxis->setRange(-5,10);
     }
-    ui->customPlot->xAxis->setRange(-10,10);
+    else{
+        ui->customPlot->xAxis->setRange(start,end);
+    }
     ui->customPlot->replot();
 }
 void MainWindow::plotContinuousDistribution(double start, double end) {
@@ -65,23 +69,30 @@ void MainWindow::plotContinuousDistribution(double start, double end) {
     ui->customPlot->addGraph();
     ui->customPlot->graph(0)->setData(x, y);
     ui->customPlot->graph(0)->rescaleAxes();
+    QPen graphPen;
+    graphPen.setColor(QColor(0,255,242));
+    graphPen.setWidth(3.0);
+    ui->customPlot->graph(0)->setPen(graphPen);
+    ui->customPlot->graph(0)->setBrush(QBrush(QColor(0, 255, 242, 30)));
+    ui->customPlot->axisRect()->setupFullAxesBox(false);//去掉多余边框
 }
 void MainWindow::plotDiscreteDistribution(double start, double end) {
-    
-    int count = static_cast<int>(end - start) + 1;
-    QVector<double> x(count), y(count);
-
-    for (int i = 0; i < count; ++i) {
-        x[i] = start + i;
-        y[i] = m_currentDist->calculate(x[i]);
+    ui->customPlot->clearPlottables();
+    QCPBars *bars = new QCPBars(ui->customPlot->xAxis, ui->customPlot->yAxis);
+    int size = end - start + 1;
+    if (size <= 0) return;
+    QVector<double> ticks(size), values(size);
+    for (int i = 0; i < size; ++i) {
+        int k = start + i;
+        ticks[i] = k;
+        values[i] = m_currentDist->calculate(double(k));
     }
 
-    // 使用柱形图绘制离散分布
-    QCPBars *bars = new QCPBars(ui->customPlot->xAxis, ui->customPlot->yAxis);
-    bars->setData(x, y);
+    bars->setData(ticks, values);
     bars->setWidth(0.6);
-    bars->setPen(QPen(QColor(0, 255, 242)));
-    bars->setBrush(QBrush(QColor(0, 255, 242, 80)));
+    bars->setPen(QPen(QColor(0, 255, 242), 1.5));
+    bars->setBrush(QColor(0, 255, 242, 80));
+
     ui->customPlot->rescaleAxes();
 }
 void MainWindow::onParameterChanged(){
@@ -95,8 +106,13 @@ void MainWindow::onParameterChanged(){
         val2/=10.0;
     }
     if(m_currentDist) {
-        m_currentDist->setParameters(val1, val2);
+
     }
+    if(m_currentDist->getType() == DistType::Binomial)
+    {
+        val2/=100;
+    }
+    m_currentDist->setParameters(val1, val2);
     //更新数值显示标签
     ui->labelMu->setText(QString("%1: %2").arg(m_currentDist->getParam1Name()).arg(val1));
     ui->labelSigma->setText(QString("%1: %2").arg(m_currentDist->getParam2Name()).arg(val2));
@@ -115,15 +131,10 @@ void MainWindow::setupInitialStyle(){
     //图线美化
 
     //连续分布：使用曲线图
-    ui->customPlot->addGraph();
+
 
     if (m_currentDist->getCategory() == DistributionCategory::Continuous){
-    QPen graphPen;
-    graphPen.setColor(QColor(0,255,242));
-    graphPen.setWidth(3.0);
-    ui->customPlot->graph(0)->setPen(graphPen);
-    ui->customPlot->graph(0)->setBrush(QBrush(QColor(0, 255, 242, 30)));
-    ui->customPlot->axisRect()->setupFullAxesBox(false);//去掉多余边框
+        ui->customPlot->addGraph();
     }
 }
 MainWindow::~MainWindow()

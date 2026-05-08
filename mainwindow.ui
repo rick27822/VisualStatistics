@@ -48,7 +48,7 @@
            <number>1</number>
           </property>
           <property name="maximum">
-           <number>50</number>
+           <number>100</number>
           </property>
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
@@ -71,10 +71,10 @@
         <item row="0" column="0">
          <widget class="QSlider" name="sliderMu">
           <property name="minimum">
-           <number>-50</number>
+           <number>1</number>
           </property>
           <property name="maximum">
-           <number>50</number>
+           <number>100</number>
           </property>
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>

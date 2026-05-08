@@ -10,3 +10,18 @@ double NormalDistribution::calculate(double x) const {
 QPair<double, double> NormalDistribution::getSuggestedRange() const {
     return qMakePair(m_mu - 5 * m_sigma, m_mu + 5 * m_sigma);
 }
+double BinomialDistribution::calculate(double x) const{
+    int k = std::round(x);
+    if (k < 0 || k > n) return 0;
+    if (p <= 0) return (k == 0) ? 1.0 : 0.0;
+    if (p >= 1) return (k == n) ? 1.0 : 0.0;
+
+    // 使用对数计算组合数公式防止溢出
+    double logCnK = std::lgamma(n + 1) - std::lgamma(k + 1) - std::lgamma(n - k + 1);
+    double logProb = logCnK + k * std::log(p) + (n - k) * std::log(1.0 - p);
+
+    return std::exp(logProb);
+}
+QPair<double,double> BinomialDistribution::getSuggestedRange() const{
+    return qMakePair(-1.0, double(n) + 1.0);
+}

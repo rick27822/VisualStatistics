@@ -43,5 +43,22 @@ public:
     DistType getType() const override { return DistType::Normal; }
     DistributionCategory getCategory() const override { return DistributionCategory::Continuous; }
 };
+class BinomialDistribution: public BaseDistribution{
+private:
+    int n;
+    double p;
+public:
+    BinomialDistribution(int n=5,double p=0.5) : n(n),p(p){}
+    double calculate(double x) const override;
+    QPair<double, double> getSuggestedRange() const override;
+    QString getParam1Name() const override { return "实验次数 (n)"; }
+    QString getParam2Name() const override { return "概率 (p)"; }
+    DistType getType() const override { return DistType::Binomial; }
+    DistributionCategory getCategory() const override { return DistributionCategory::Discrete; }
+    void setParameters(double p1, double p2) override {
+        n = std::max(1, (int)p1); // n 必须是正整数
+        p = std::clamp(p2, 0.0, 1.0); // p 必须在 0 到 1 之间
+    }
+};
 
 #endif // DISTRIBUTIONMODEL_H
