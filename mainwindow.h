@@ -20,8 +20,10 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    void setupNormalPlot();
+    void setupPlot();
     void setupInitialStyle();
+    void plotContinuousDistribution(double start, double end);
+    void plotDiscreteDistribution(double start, double end);
     BaseDistribution* m_currentDist = nullptr;
 private slots:
     //统一处理滑块变化的槽函数

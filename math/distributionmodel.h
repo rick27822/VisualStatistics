@@ -10,12 +10,13 @@
 using namespace std;
 
 enum class DistType {Normal,Binomial,Poission};
-
+enum class DistributionCategory {Continuous,Discrete};
 //定义一个基类
 class BaseDistribution{
 public:
     virtual ~BaseDistribution() {}
-
+    virtual DistType getType() const = 0;//获取分布类型
+    virtual DistributionCategory getCategory() const = 0;//获取分布类别
     virtual double calculate(double x) const =0;//计算概率密度
 
     virtual QPair<double,double> getSuggestedRange() const = 0;//获取建议的范围
@@ -39,6 +40,8 @@ public:
     QString getParam1Name() const override { return "期望 (μ)"; }
     QString getParam2Name() const override { return "标准差 (σ)"; }
     void setParameters(double p1, double p2) override { m_mu = p1; m_sigma = p2; }
+    DistType getType() const override { return DistType::Normal; }
+    DistributionCategory getCategory() const override { return DistributionCategory::Continuous; }
 };
 
 #endif // DISTRIBUTIONMODEL_H
