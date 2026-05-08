@@ -11,6 +11,7 @@ using namespace std;
 
 enum class DistType {Normal,Binomial,Poission};
 enum class DistributionCategory {Continuous,Discrete};
+
 //定义一个基类
 class BaseDistribution{
 public:
@@ -18,7 +19,7 @@ public:
     virtual DistType getType() const = 0;//获取分布类型
     virtual DistributionCategory getCategory() const = 0;//获取分布类别
     virtual double calculate(double x) const =0;//计算概率密度
-
+    virtual double calculateCDF(double x) const = 0;
     virtual QPair<double,double> getSuggestedRange() const = 0;//获取建议的范围
     //获取参数名称
     virtual QString getParam1Name() const = 0;
@@ -34,7 +35,7 @@ private:
     double m_sigma;
 public:
     NormalDistribution(double mu=0.0,double sigma =1.0) :m_mu(mu),m_sigma(sigma){}
-
+    double calculateCDF(double x) const override;
     double calculate(double x) const override;
     QPair<double, double> getSuggestedRange() const override;
     QString getParam1Name() const override { return "期望 (μ)"; }
@@ -50,6 +51,7 @@ private:
 public:
     BinomialDistribution(int n=5,double p=0.5) : n(n),p(p){}
     double calculate(double x) const override;
+    double calculateCDF(double x) const override;
     QPair<double, double> getSuggestedRange() const override;
     QString getParam1Name() const override { return "实验次数 (n)"; }
     QString getParam2Name() const override { return "概率 (p)"; }

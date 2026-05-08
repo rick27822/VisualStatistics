@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <QVector>
 #include"math/distributionmodel.h"
+
+
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -15,6 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    enum class RenderMode { PMF, CDF };
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
@@ -25,6 +29,7 @@ private:
     void plotContinuousDistribution(double start, double end);
     void plotDiscreteDistribution(double start, double end);
     BaseDistribution* m_currentDist = nullptr;
+    RenderMode m_mode;
 private slots:
     //统一处理滑块变化的槽函数
     void onParameterChanged();

@@ -5,6 +5,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    ,m_mode(RenderMode::PMF)
 {
     ui->setupUi(this);
     m_currentDist = new BinomialDistribution(5,5);//测试用
@@ -16,6 +17,18 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sliderSigma, &QSlider::valueChanged, this, &MainWindow::onParameterChanged);
     setupPlot();
     onParameterChanged();
+    connect(ui->btnToggleMode, &QPushButton::clicked, this, [this](){
+        //切换逻辑
+        if (m_mode == RenderMode::PMF) {
+            m_mode = RenderMode::CDF;
+            ui->btnToggleMode->setText("切换至概率分布 (PMF)");
+        } else {
+            m_mode = RenderMode::PMF;
+            ui->btnToggleMode->setText("切换至累积分布 (CDF)");
+        }
+
+        updatePlot();
+    });
     this->setStyleSheet(
         "QWidget { background-color: #121212; color: white; font-family: 'Arial'; }"
         "QSlider::handle:horizontal { background: #00FFF2; width: 18px; border-radius: 9px; }"
@@ -79,21 +92,39 @@ void MainWindow::plotContinuousDistribution(double start, double end) {
 void MainWindow::plotDiscreteDistribution(double start, double end) {
     ui->customPlot->clearPlottables();
     QCPBars *bars = new QCPBars(ui->customPlot->xAxis, ui->customPlot->yAxis);
-    int size = end - start + 1;
-    if (size <= 0) return;
-    QVector<double> ticks(size), values(size);
-    for (int i = 0; i < size; ++i) {
-        int k = start + i;
-        ticks[i] = k;
-        values[i] = m_currentDist->calculate(double(k));
+
+    int n = static_cast<int>(end - 1);
+    QVector<double> ticks, values;
+    double cumulativeSum = 0.0;
+
+    for (int k = 0; k <= n; ++k) {
+        ticks.append(k);
+        double p_k = m_currentDist->calculate(static_cast<double>(k));
+
+        if (m_mode == RenderMode::PMF) {
+            values.append(p_k);
+        } else {
+            cumulativeSum += p_k;
+            values.append(cumulativeSum);
+        }
     }
 
     bars->setData(ticks, values);
-    bars->setWidth(0.6);
-    bars->setPen(QPen(QColor(0, 255, 242), 1.5));
-    bars->setBrush(QColor(0, 255, 242, 80));
+
+
+    bars->setPen(QPen(QColor(0, 255, 242), 1.2));
+    if (m_mode == RenderMode::PMF) {
+        bars->setBrush(QColor(0, 255, 242, 80));
+    } else {
+        bars->setBrush(QColor(0, 255, 242, 160));
+    }
 
     ui->customPlot->rescaleAxes();
+
+    if (m_mode == RenderMode::CDF) {
+        ui->customPlot->yAxis->setRange(0, 1.1);
+    }
+    ui->customPlot->replot();
 }
 void MainWindow::onParameterChanged(){
     if (!m_currentDist) return;

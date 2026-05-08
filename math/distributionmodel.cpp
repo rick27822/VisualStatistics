@@ -25,3 +25,14 @@ double BinomialDistribution::calculate(double x) const{
 QPair<double,double> BinomialDistribution::getSuggestedRange() const{
     return qMakePair(-1.0, double(n) + 1.0);
 }
+double BinomialDistribution::calculateCDF(double x) const{
+    int k_max = std::floor(x);
+    if (k_max < 0) return 0.0;
+    if (k_max >= n) return 1.0;
+
+    double sum = 0.0;
+    for (int i = 0; i <= k_max; ++i) {
+        sum += calculate(double(i));
+    }
+    return sum;
+}
