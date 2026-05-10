@@ -35,8 +35,76 @@ void DetailPage::setupInitialStyle() {
 void DetailPage::setDistribution(BaseDistribution *dist) {
   m_dist = dist;
   if (m_dist) {
-    ui->labelTitle->setText(m_dist->getParam1Name().split(" ").first() +" 分布"); // 假设名称
-    onParameterChanged();             // 初始化绘图
+    ui->labelTitle->setText(m_dist->getName());
+    setupSliderRanges();
+    onParameterChanged();
+  }
+}
+void DetailPage::setupSliderRanges() {
+  if (!m_dist)
+    return;
+
+  switch (m_dist->getType()) {
+  case DistType::Normal:
+    ui->Slider1->setRange(-5, 5);
+    ui->Slider1->setValue(0);
+    ui->Slider2->setRange(1, 50);
+    ui->Slider2->setValue(10);
+    break;
+  case DistType::Binomial:
+    ui->Slider1->setRange(1, 50);
+    ui->Slider1->setValue(10);
+    ui->Slider2->setRange(0, 100);
+    ui->Slider2->setValue(50);
+    break;
+  case DistType::Poission:
+    ui->Slider1->setRange(1, 200);
+    ui->Slider1->setValue(50);
+    ui->Slider2->setRange(0, 100);
+    ui->Slider2->setValue(0);
+    break;
+  case DistType::Uniform:
+    ui->Slider1->setRange(0, 100);
+    ui->Slider1->setValue(0);
+    ui->Slider2->setRange(1, 100);
+    ui->Slider2->setValue(100);
+    break;
+  case DistType::Exponential:
+    ui->Slider1->setRange(1, 200);
+    ui->Slider1->setValue(100);
+    ui->Slider2->setRange(0, 100);
+    ui->Slider2->setValue(0);
+    break;
+  case DistType::StudentT:
+    ui->Slider1->setRange(1, 200);
+    ui->Slider1->setValue(10);
+    ui->Slider2->setRange(0, 100);
+    ui->Slider2->setValue(0);
+    break;
+  case DistType::ChiSquare:
+    ui->Slider1->setRange(1, 200);
+    ui->Slider1->setValue(5);
+    ui->Slider2->setRange(0, 100);
+    ui->Slider2->setValue(0);
+    break;
+  case DistType::Beta:
+    ui->Slider1->setRange(1, 200);
+    ui->Slider1->setValue(10);
+    ui->Slider2->setRange(1, 200);
+    ui->Slider2->setValue(10);
+    break;
+  case DistType::Geometric:
+    ui->Slider1->setRange(1, 99);
+    ui->Slider1->setValue(50);
+    ui->Slider2->setRange(0, 100);
+    ui->Slider2->setValue(0);
+    break;
+  case DistType::Hypergeometric:
+    ui->Slider1->setRange(5, 100);
+    ui->Slider1->setValue(40);
+    ui->Slider2->setRange(1, 100);
+    ui->Slider2->setValue(20);
+    break;
   }
 }
 void DetailPage::onParameterChanged() {
@@ -44,19 +112,71 @@ void DetailPage::onParameterChanged() {
     return;
   double val1 = ui->Slider1->value();
   double val2 = ui->Slider2->value();
-  if (m_dist->getType() == DistType::Normal) {
-    val1 /= 10.0;
-    val2 /= 10.0;
+  double param1 = val1;
+  double param2 = val2;
+
+  switch (m_dist->getType()) {
+  case DistType::Normal:
+    param1 = val1;
+    param2 = val2 / 10.0;
+    param2 = std::max(0.1, param2);
+    break;
+  case DistType::Binomial:
+    param1 = std::round(val1);
+    param1 = std::max(1.0, param1);
+    param2 = val2 / 100.0;
+    param2 = std::clamp(param2, 0.0, 1.0);
+    break;
+  case DistType::Poission:
+    param1 = val1 / 10.0;
+    param1 = std::max(0.01, param1);
+    param2 = 0.0;
+    break;
+  case DistType::Uniform:
+    param1 = val1 / 10.0;
+    param2 = val2 / 10.0;
+    if (param2 <= param1)
+      param2 = param1 + 0.1;
+    break;
+  case DistType::Exponential:
+    param1 = val1 / 100.0;
+    param1 = std::max(0.01, param1);
+    param2 = 0.0;
+    break;
+  case DistType::StudentT:
+    param1 = val1 / 1.0; // 直接使用滑块值作为自由度
+    param1 = std::max(1.0, param1);
+    param2 = 0.0;
+    break;
+  case DistType::ChiSquare:
+    param1 = val1 / 1.0; // 直接使用滑块值作为自由度
+    param1 = std::max(1.0, param1);
+    param2 = 0.0;
+    break;
+  case DistType::Beta:
+    param1 = val1 / 10.0; // α 参数，范围 0.1-20
+    param1 = std::max(0.01, param1);
+    param2 = val2 / 10.0; // β 参数，范围 0.1-20
+    param2 = std::max(0.01, param2);
+    break;
+  case DistType::Geometric:
+    param1 = val1 / 100.0; // p 参数，范围 0.01-0.99
+    param1 = std::clamp(param1, 0.01, 0.99);
+    param2 = 0.0;
+    break;
+  case DistType::Hypergeometric:
+    param1 = val1; // N 参数，范围 5-100
+    param1 = std::max(5.0, param1);
+    param2 = val2; // K 参数，范围 1-100
+    param2 = std::min(param2, param1);
+    break;
   }
-  if (m_dist->getType() == DistType::Binomial) {
-    val2 /= 100;
-  }
-  if (m_dist->getType() == DistType::Poission) {
-    val1 /= 10.0;
-  }
-  m_dist->setParameters(val1, val2);
-  ui->label1->setText(QString("%1: %2").arg(m_dist->getParam1Name()).arg(val1));
-  ui->label2->setText(QString("%1: %2").arg(m_dist->getParam2Name()).arg(val2));
+
+  m_dist->setParameters(param1, param2);
+  ui->label1->setText(
+      QString("%1: %2").arg(m_dist->getParam1Name()).arg(param1));
+  ui->label2->setText(
+      QString("%1: %2").arg(m_dist->getParam2Name()).arg(param2));
 
   updatePlot();
 }
@@ -80,7 +200,15 @@ void DetailPage::updatePlot() {
   double upperBound = ui->customPlot->yAxis->range().upper;
   ui->customPlot->yAxis->setRange(0, upperBound * 1.2);
   if (m_dist->getCategory() == DistributionCategory::Continuous) {
-    ui->customPlot->xAxis->setRange(-5, 10);
+    if (m_dist->getType() == DistType::Uniform ||
+        m_dist->getType() == DistType::Exponential ||
+        m_dist->getType() == DistType::ChiSquare ||
+        m_dist->getType() == DistType::Beta) {
+      ui->customPlot->xAxis->setRange(start, end);
+    } else {
+      // 对于正态分布、学生t分布等对称分布使用建议范围
+      ui->customPlot->xAxis->setRange(start, end);
+    }
   } else {
     ui->customPlot->xAxis->setRange(start, end);
   }
@@ -152,7 +280,8 @@ void DetailPage::plotDiscreteDistribution(double start, double end) {
 }
 void DetailPage::toggleRenderMode() {
   m_mode = (m_mode == RenderMode::PMF) ? RenderMode::CDF : RenderMode::PMF;
-  ui->btnToggleMode->setText(m_mode == RenderMode::PMF ? "切换至 CDF" : "切换至 PDF");
+  ui->btnToggleMode->setText(m_mode == RenderMode::PMF ? "切换至 CDF"
+                                                       : "切换至 PDF");
   updatePlot();
 }
 DetailPage::~DetailPage() { delete ui; }

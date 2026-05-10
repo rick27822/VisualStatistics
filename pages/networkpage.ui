@@ -35,6 +35,55 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QPushButton" name="btnUniform">
+     <property name="text">
+      <string>Uniform Distribution</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnExponential">
+     <property name="text">
+      <string>Exponential Distribution</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnStudentT">
+     <property name="text">
+      <string>Student's T Distribution</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnChiSquare">
+     <property name="text">
+      <string>Chi-Square Distribution</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnBeta">
+     <property name="text">
+      <string>Beta Distribution</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnGeometric">
+     <property name="text">
+      <string>Geometric Distribution</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnHypergeometric">
+     <property name="text">
+      <string>Hypergeometric Distribution</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

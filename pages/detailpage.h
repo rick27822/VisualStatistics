@@ -30,6 +30,7 @@ private:
     RenderMode m_mode = RenderMode::PMF;
     void setupPlot();
     void setupInitialStyle();
+    void setupSliderRanges();
     void updatePlot();
     void plotContinuousDistribution(double start, double end);
     void plotDiscreteDistribution(double start, double end);

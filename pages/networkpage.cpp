@@ -2,31 +2,53 @@
 #include "ui_networkpage.h"
 
 NetworkPage::NetworkPage(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::NetworkPage)
-{
-    ui->setupUi(this);
-    setupNodes();
+    : QWidget(parent), ui(new Ui::NetworkPage) {
+  ui->setupUi(this);
+  setupNodes();
 }
 void NetworkPage::setupNodes() {
-    connect(ui->btnNormal, &QPushButton::clicked, [=](){
-        emit distSelected(DistType::Normal);
-    });
+  connect(ui->btnNormal, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Normal); });
 
-    connect(ui->btnBinomial, &QPushButton::clicked, [=](){
-        emit distSelected(DistType::Binomial);
-    });
+  connect(ui->btnBinomial, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Binomial); });
 
-    connect(ui->btnPoisson, &QPushButton::clicked, [=](){
-        emit distSelected(DistType::Poission);
-    });
+  connect(ui->btnPoisson, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Poission); });
 
-    QString nodeStyle = "QPushButton { border-radius: 40px; background: #1E1E1E; border: 1px solid #555; } ""QPushButton:hover { border-color: #00FFF2; }";
-    ui->btnNormal->setStyleSheet(nodeStyle);
-    ui->btnBinomial->setStyleSheet(nodeStyle);
-    ui->btnPoisson->setStyleSheet(nodeStyle);
+  connect(ui->btnUniform, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Uniform); });
+
+  connect(ui->btnExponential, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Exponential); });
+
+  connect(ui->btnStudentT, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::StudentT); });
+
+  connect(ui->btnChiSquare, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::ChiSquare); });
+
+  connect(ui->btnBeta, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Beta); });
+
+  connect(ui->btnGeometric, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Geometric); });
+
+  connect(ui->btnHypergeometric, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Hypergeometric); });
+
+  QString nodeStyle = "QPushButton { border-radius: 40px; background: #1E1E1E; "
+                      "border: 1px solid #555; } "
+                      "QPushButton:hover { border-color: #00FFF2; }";
+  ui->btnNormal->setStyleSheet(nodeStyle);
+  ui->btnBinomial->setStyleSheet(nodeStyle);
+  ui->btnPoisson->setStyleSheet(nodeStyle);
+  ui->btnUniform->setStyleSheet(nodeStyle);
+  ui->btnExponential->setStyleSheet(nodeStyle);
+  ui->btnStudentT->setStyleSheet(nodeStyle);
+  ui->btnChiSquare->setStyleSheet(nodeStyle);
+  ui->btnBeta->setStyleSheet(nodeStyle);
+  ui->btnGeometric->setStyleSheet(nodeStyle);
+  ui->btnHypergeometric->setStyleSheet(nodeStyle);
 }
-NetworkPage::~NetworkPage()
-{
-    delete ui;
-}
+NetworkPage::~NetworkPage() { delete ui; }
