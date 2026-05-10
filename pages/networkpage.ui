@@ -38,14 +38,6 @@
      <height>50</height>
     </rect>
    </property>
-   <property name="text">
-    <string>正态分布 (Normal)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -58,6 +50,14 @@
      <height>50</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>正态分布 (Normal)</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="btnBinomial">
    <property name="geometry">
@@ -67,14 +67,6 @@
      <width>140</width>
      <height>45</height>
     </rect>
-   </property>
-   <property name="text">
-    <string>二项分布 (Binomial)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
    </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -87,6 +79,14 @@
      <width>140</width>
      <height>45</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>二项分布 (Binomial)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnPoisson">
@@ -98,14 +98,6 @@
      <height>45</height>
     </rect>
    </property>
-   <property name="text">
-    <string>泊松分布 (Poisson)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -117,6 +109,14 @@
      <width>140</width>
      <height>45</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>泊松分布 (Poisson)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnUniform">
@@ -128,14 +128,6 @@
      <height>45</height>
     </rect>
    </property>
-   <property name="text">
-    <string>均匀分布 (Uniform)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -147,6 +139,14 @@
      <width>140</width>
      <height>45</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>均匀分布 (Uniform)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnExponential">
@@ -158,14 +158,6 @@
      <height>45</height>
     </rect>
    </property>
-   <property name="text">
-    <string>指数分布 (Exponential)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -177,6 +169,14 @@
      <width>140</width>
      <height>45</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>指数分布 (Exponential)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnStudentT">
@@ -188,14 +188,6 @@
      <height>45</height>
     </rect>
    </property>
-   <property name="text">
-    <string>t分布 (Student T)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -207,6 +199,14 @@
      <width>140</width>
      <height>45</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>t分布 (Student T)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnChiSquare">
@@ -218,14 +218,6 @@
      <height>45</height>
     </rect>
    </property>
-   <property name="text">
-    <string>卡方分布 (Chi-Square)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -237,6 +229,14 @@
      <width>140</width>
      <height>45</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>卡方分布 (Chi-Square)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnBeta">
@@ -248,14 +248,6 @@
      <height>45</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Beta分布 (Beta)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
@@ -267,6 +259,14 @@
      <width>140</width>
      <height>45</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Beta分布 (Beta)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnGeometric">
@@ -278,43 +278,35 @@
      <height>45</height>
     </rect>
    </property>
-   <property name="text">
-    <string>几何分布 (Geometric)</string>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>140</width>
+     <height>45</height>
+    </size>
    </property>
    <property name="font">
     <font>
      <pointsize>11</pointsize>
     </font>
    </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>140</width>
-     <height>45</height>
-    </size>
+   <property name="text">
+    <string>几何分布 (Geometric)</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnHypergeometric">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>520</y>
-     <width>140</width>
+     <x>350</x>
+     <y>120</y>
+     <width>181</width>
      <height>45</height>
     </rect>
-   </property>
-   <property name="text">
-    <string>超几何分布 (Hypergeometric)</string>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-    </font>
    </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -323,13 +315,21 @@
     </sizepolicy>
    </property>
    <property name="minimumSize">
-    <size>
-     <width>140</width>
-     <height>45</height>
-    </size>
-   </property>
+     <size>
+      <width>170</width>
+      <height>45</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>超几何分布 (Hypergeometric)</string>
+    </property>
+   </widget>
   </widget>
- </widget>
- <resources/>
- <connections/>
+  <resources/>
+  <connections/>
 </ui>

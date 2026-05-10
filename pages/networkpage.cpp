@@ -112,7 +112,7 @@ void NetworkPage::updateButtonPositions() {
                         normalBtnWidth, normalBtnHeight);
   ui->btnNormal->setGeometry(normalBtnRect);
 
-  int nodeWidth = 140;
+  int nodeWidth = 155;
   int nodeHeight = 45;
   int horizontalOffset = 220;
   int verticalOffset = 120;
@@ -158,9 +158,10 @@ void NetworkPage::updateButtonPositions() {
                            nodeWidth, nodeHeight);
   ui->btnGeometric->setGeometry(geometricBtnRect);
 
-  hypergeometricBtnRect = QRect(centerX - nodeWidth / 2,
+  int hypergeometricWidth = 170;
+  hypergeometricBtnRect = QRect(centerX - hypergeometricWidth / 2,
                                 centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
-                                nodeWidth, nodeHeight);
+                                hypergeometricWidth, nodeHeight);
   ui->btnHypergeometric->setGeometry(hypergeometricBtnRect);
 }
 
