@@ -37,3 +37,30 @@ double BinomialDistribution::calculateCDF(double x) const{
     }
     return sum;
 }
+
+double PoissonDistribution::calculate(double x) const {
+    int k = std::round(x);
+    if (k < 0) return 0.0;
+    if (m_lambda <= 0) return (k == 0) ? 1.0 : 0.0;
+    
+    double logFactorial = std::lgamma(k + 1);
+    double logProb = -m_lambda + k * std::log(m_lambda) - logFactorial;
+    
+    return std::exp(logProb);
+}
+
+double PoissonDistribution::calculateCDF(double x) const {
+    int k_max = std::floor(x);
+    if (k_max < 0) return 0.0;
+    
+    double sum = 0.0;
+    for (int i = 0; i <= k_max; ++i) {
+        sum += calculate(double(i));
+    }
+    return sum;
+}
+
+QPair<double, double> PoissonDistribution::getSuggestedRange() const {
+    double max_k = m_lambda + 4 * std::sqrt(m_lambda);
+    return qMakePair(-1.0, max_k + 1.0);
+}

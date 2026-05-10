@@ -42,7 +42,6 @@ void DetailPage::setDistribution(BaseDistribution *dist) {
 void DetailPage::onParameterChanged() {
   if (!m_dist)
     return;
-  // 获取滑块值
   double val1 = ui->Slider1->value();
   double val2 = ui->Slider2->value();
   if (m_dist->getType() == DistType::Normal) {
@@ -52,8 +51,10 @@ void DetailPage::onParameterChanged() {
   if (m_dist->getType() == DistType::Binomial) {
     val2 /= 100;
   }
+  if (m_dist->getType() == DistType::Poission) {
+    val1 /= 10.0;
+  }
   m_dist->setParameters(val1, val2);
-  // 更新数值显示标签
   ui->label1->setText(QString("%1: %2").arg(m_dist->getParam1Name()).arg(val1));
   ui->label2->setText(QString("%1: %2").arg(m_dist->getParam2Name()).arg(val2));
 

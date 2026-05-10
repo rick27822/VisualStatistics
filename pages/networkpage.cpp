@@ -17,10 +17,14 @@ void NetworkPage::setupNodes() {
         emit distSelected(DistType::Binomial);
     });
 
-    // 样式美化
+    connect(ui->btnPoisson, &QPushButton::clicked, [=](){
+        emit distSelected(DistType::Poission);
+    });
+
     QString nodeStyle = "QPushButton { border-radius: 40px; background: #1E1E1E; border: 1px solid #555; } ""QPushButton:hover { border-color: #00FFF2; }";
     ui->btnNormal->setStyleSheet(nodeStyle);
     ui->btnBinomial->setStyleSheet(nodeStyle);
+    ui->btnPoisson->setStyleSheet(nodeStyle);
 }
 NetworkPage::~NetworkPage()
 {

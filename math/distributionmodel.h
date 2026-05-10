@@ -61,11 +61,30 @@ public:
     }
 };
 
+class PoissonDistribution: public BaseDistribution{
+private:
+    double m_lambda;
+public:
+    PoissonDistribution(double lambda=5.0) : m_lambda(lambda){}
+    double calculate(double x) const override;
+    double calculateCDF(double x) const override;
+    QPair<double, double> getSuggestedRange() const override;
+    QString getParam1Name() const override { return "均值 (λ)"; }
+    QString getParam2Name() const override { return ""; }
+    DistType getType() const override { return DistType::Poission; }
+    DistributionCategory getCategory() const override { return DistributionCategory::Discrete; }
+    void setParameters(double p1, double p2) override {
+        Q_UNUSED(p2);
+        m_lambda = std::max(0.01, p1); // λ 必须大于 0
+    }
+};
+
 struct DistFactory {
     static BaseDistribution* create(DistType type) {
         switch (type) {
             case DistType::Normal:    return new NormalDistribution(0.0, 1.0);
             case DistType::Binomial:  return new BinomialDistribution(10, 0.5);
+            case DistType::Poission:  return new PoissonDistribution(5.0);
             default:                  return new NormalDistribution(0.0, 1.0);
         }
     }
