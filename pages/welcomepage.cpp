@@ -1,15 +1,16 @@
 #include "welcomepage.h"
-#include <QVBoxLayout>
+#include <QGraphicsDropShadowEffect>
 #include <QLabel>
-#include <QPushButton>
-#include <QResizeEvent>
 #include <QPainterPath>
+#include <QPushButton>
 #include <QRadialGradient>
+#include <QResizeEvent>
+#include <QVBoxLayout>
 #include <cmath>
 
 WelcomePage::WelcomePage(QWidget *parent)
-    : QWidget(parent), m_timer(new QTimer(this)),
-      m_binCount(60), m_maxCurveHeight(0), m_oldWidth(0), m_oldHeight(0) {
+    : QWidget(parent), m_timer(new QTimer(this)), m_binCount(60),
+      m_maxCurveHeight(0), m_oldWidth(0), m_oldHeight(0) {
   m_bins.resize(m_binCount, 0);
 
   initUI();
@@ -60,7 +61,8 @@ void WelcomePage::recalculateParticlePositions() {
     p.x = newCenterX + relativeX * (width() / 2.0);
 
     if (p.settled) {
-      qreal oldRelativeHeight = maxHeight > 0 ? (oldSettleY - p.y) / maxHeight : 0;
+      qreal oldRelativeHeight =
+          maxHeight > 0 ? (oldSettleY - p.y) / maxHeight : 0;
       p.y = settleY - oldRelativeHeight * newMaxHeight;
 
       p.binIndex = static_cast<int>((p.x / width()) * m_binCount);
@@ -82,40 +84,51 @@ void WelcomePage::initUI() {
 
   QLabel *titleLabel = new QLabel("VISUAL STATISTICS", this);
   titleLabel->setAlignment(Qt::AlignCenter);
-  titleLabel->setStyleSheet(
-      "QLabel { "
-      "  font-size: 32px; "
-      "  font-weight: bold; "
-      "  color: #FFFFFF; "
-      "  letter-spacing: 8px; "
-      "  text-shadow: 0 0 20px rgba(0, 255, 242, 1.0); "
-      "  background-color: rgba(0, 0, 0, 0.8); "
-      "  padding: 20px 40px; "
-      "  border-radius: 10px; "
-      "  border: 1px solid rgba(0, 255, 242, 0.5); "
-      "}");
+  titleLabel->setStyleSheet("QLabel { "
+                            "  font-size: 32px; "
+                            "  font-weight: bold; "
+                            "  color: #FFFFFF; "
+                            "  letter-spacing: 8px; "
+                            "  background-color: rgba(0, 0, 0, 0.8); "
+                            "  padding: 20px 40px; "
+                            "  border-radius: 10px; "
+                            "  border: 1px solid rgba(0, 255, 242, 0.5); "
+                            "}");
   layout->addWidget(titleLabel);
 
   QPushButton *exploreBtn = new QPushButton("EXPLORE", this);
-  exploreBtn->setStyleSheet(
-      "QPushButton { "
-      "  background-color: rgba(0, 0, 0, 0.9); "
-      "  border: 2px solid #00FFF2; "
-      "  color: #00FFF2; "
-      "  padding: 15px 50px; "
-      "  font-size: 18px; "
-      "  font-weight: bold; "
-      "  border-radius: 8px; "
-      "  text-shadow: 0 0 15px rgba(0, 255, 242, 1.0); "
-      "  min-width: 200px; "
-      "}"
-      "QPushButton:hover { "
-      "  background-color: rgba(0, 255, 242, 0.2); "
-      "  box-shadow: 0 0 20px rgba(0, 255, 242, 0.6); "
-      "}");
+  exploreBtn->setStyleSheet("QPushButton { "
+                            "  background-color: rgba(0, 0, 0, 0.9); "
+                            "  border: 2px solid #00FFF2; "
+                            "  color: #00FFF2; "
+                            "  padding: 15px 50px; "
+                            "  font-size: 18px; "
+                            "  font-weight: bold; "
+                            "  border-radius: 8px; "
+                            "  min-width: 200px; "
+                            "}"
+                            "QPushButton:hover { "
+                            "  background-color: rgba(0, 255, 242, 0.2); "
+                            "}");
   layout->addWidget(exploreBtn, 0, Qt::AlignCenter);
 
-  connect(exploreBtn, &QPushButton::clicked, this, &WelcomePage::startExploring);
+  connect(exploreBtn, &QPushButton::clicked, this,
+          &WelcomePage::startExploring);
+
+  QTimer::singleShot(100, this, [=]() {
+    QGraphicsDropShadowEffect *titleEffect =
+        new QGraphicsDropShadowEffect(this);
+    titleEffect->setColor(QColor(0, 255, 242));
+    titleEffect->setBlurRadius(20);
+    titleEffect->setOffset(0, 0);
+    titleLabel->setGraphicsEffect(titleEffect);
+
+    QGraphicsDropShadowEffect *btnEffect = new QGraphicsDropShadowEffect(this);
+    btnEffect->setColor(QColor(0, 255, 242));
+    btnEffect->setBlurRadius(15);
+    btnEffect->setOffset(0, 0);
+    exploreBtn->setGraphicsEffect(btnEffect);
+  });
 }
 
 void WelcomePage::spawnParticle() {
@@ -203,7 +216,8 @@ void WelcomePage::paintEvent(QPaintEvent *event) {
 
   qreal settleY = height() - 50;
 
-  QRadialGradient radialGrad(width() / 2, settleY - m_maxCurveHeight * 0.3, width() * 0.6);
+  QRadialGradient radialGrad(width() / 2, settleY - m_maxCurveHeight * 0.3,
+                             width() * 0.6);
   radialGrad.setColorAt(0, QColor(0, 255, 242, 50));
   radialGrad.setColorAt(0.4, QColor(0, 255, 242, 25));
   radialGrad.setColorAt(0.8, QColor(0, 255, 242, 8));
@@ -217,7 +231,8 @@ void WelcomePage::paintEvent(QPaintEvent *event) {
   qreal maxHeight = 0;
   for (int i = 0; i < m_binCount; ++i) {
     qreal h = qMin(m_bins[i] * 4.0, m_maxCurveHeight);
-    if (h > maxHeight) maxHeight = h;
+    if (h > maxHeight)
+      maxHeight = h;
   }
 
   if (maxHeight > 0) {
@@ -236,7 +251,8 @@ void WelcomePage::paintEvent(QPaintEvent *event) {
   path.closeSubpath();
   painter.drawPath(path);
 
-  QLinearGradient glowGrad(width() / 2, settleY - m_maxCurveHeight, width() / 2, settleY);
+  QLinearGradient glowGrad(width() / 2, settleY - m_maxCurveHeight, width() / 2,
+                           settleY);
   glowGrad.setColorAt(0, QColor(0, 255, 242, 30));
   glowGrad.setColorAt(0.5, QColor(0, 255, 242, 15));
   glowGrad.setColorAt(1, QColor(0, 255, 242, 3));
@@ -246,7 +262,8 @@ void WelcomePage::paintEvent(QPaintEvent *event) {
   qreal currentMaxHeight = 0;
   for (int i = 0; i < m_binCount; ++i) {
     qreal h = m_bins[i] * 4.0;
-    if (h > currentMaxHeight) currentMaxHeight = h;
+    if (h > currentMaxHeight)
+      currentMaxHeight = h;
   }
 
   if (currentMaxHeight > 0) {
@@ -266,7 +283,8 @@ void WelcomePage::paintEvent(QPaintEvent *event) {
 
       if (h > 0) {
         QPainterPath binPath;
-        binPath.addRoundedRect(QRectF(x + 1, settleY - h, m_binWidth - 2, h), 2, 2);
+        binPath.addRoundedRect(QRectF(x + 1, settleY - h, m_binWidth - 2, h), 2,
+                               2);
         painter.drawPath(binPath);
       }
     }
