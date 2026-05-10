@@ -6,39 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>737</width>
-    <height>528</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Welcome</string>
   </property>
-  <widget class="QPushButton" name="btnStart">
-   <property name="geometry">
-    <rect>
-     <x>330</x>
-     <y>420</y>
-     <width>100</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Start Exploring</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="projectTitle">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>80</y>
-     <width>231</width>
-     <height>181</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Visual Statistics</string>
-   </property>
-  </widget>
  </widget>
  <resources/>
  <connections/>
