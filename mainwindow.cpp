@@ -39,6 +39,11 @@ void MainWindow::setupConnections() {
     connect(m_detailPage, &DetailPage::backRequested, [=](){
         m_stack->setCurrentIndex(1);
     });
+
+    // 关系网 -> 首页 (返回)
+    connect(m_networkPage, &NetworkPage::backToHome, [=](){
+        m_stack->setCurrentIndex(0);
+    });
 }
 void MainWindow::applyGlobalStyle() {
     // 3b1b 核心色调：深灰背景 + 青色高亮

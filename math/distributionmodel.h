@@ -1,6 +1,7 @@
 #ifndef DISTRIBUTIONMODEL_H
 #define DISTRIBUTIONMODEL_H
 
+#include <QList>
 #include <QPair>
 #include <QString>
 
@@ -20,7 +21,6 @@ enum class DistType {
 };
 enum class DistributionCategory { Continuous, Discrete };
 
-// 定义一个基类
 class BaseDistribution {
 public:
   virtual ~BaseDistribution() {}
@@ -30,11 +30,15 @@ public:
   virtual double calculateCDF(double x) const = 0;
   virtual QPair<double, double> getSuggestedRange() const = 0; // 获取建议的范围
   virtual QString getName() const = 0;                         // 获取分布名称
-  // 获取参数名称
+
   virtual QString getParam1Name() const = 0;
   virtual QString getParam2Name() const = 0;
-
   virtual void setParameters(double p1, double p2) = 0; // 更新参数
+
+  virtual int getParamCount() const = 0;
+  virtual QList<QString> getParamNames() const = 0;
+  virtual QList<double> getParamDefaults() const = 0;
+  virtual QList<QPair<double, double>> getParamRanges() const = 0;
 };
 
 class NormalDistribution : public BaseDistribution {
@@ -59,6 +63,14 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
+  int getParamCount() const override { return 2; }
+  QList<QString> getParamNames() const override {
+    return {"期望 (μ)", "标准差 (σ)"};
+  }
+  QList<double> getParamDefaults() const override { return {0.0, 1.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{-100.0, 100.0}, {0.1, 20.0}};
+  }
 };
 class BinomialDistribution : public BaseDistribution {
 private:
@@ -81,6 +93,14 @@ public:
     n = std::max(1, (int)p1);     // n 必须是正整数
     p = std::clamp(p2, 0.0, 1.0); // p 必须在 0 到 1 之间
   }
+  int getParamCount() const override { return 2; }
+  QList<QString> getParamNames() const override {
+    return {"实验次数 (n)", "概率 (p)"};
+  }
+  QList<double> getParamDefaults() const override { return {10.0, 0.5}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{1.0, 100.0}, {0.0, 1.0}};
+  }
 };
 
 class PoissonDistribution : public BaseDistribution {
@@ -102,6 +122,12 @@ public:
   void setParameters(double p1, double p2) override {
     Q_UNUSED(p2);
     m_lambda = std::max(0.01, p1); // λ 必须大于 0
+  }
+  int getParamCount() const override { return 1; }
+  QList<QString> getParamNames() const override { return {"均值 (λ)"}; }
+  QList<double> getParamDefaults() const override { return {5.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{0.01, 50.0}};
   }
 };
 
@@ -126,6 +152,14 @@ public:
     m_a = p1;
     m_b = std::max(p1 + 0.01, p2);
   }
+  int getParamCount() const override { return 2; }
+  QList<QString> getParamNames() const override {
+    return {"下限 (a)", "上限 (b)"};
+  }
+  QList<double> getParamDefaults() const override { return {0.0, 1.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{-100.0, 100.0}, {-100.0, 100.0}};
+  }
 };
 
 class ExponentialDistribution : public BaseDistribution {
@@ -147,6 +181,12 @@ public:
   void setParameters(double p1, double p2) override {
     Q_UNUSED(p2);
     m_lambda = std::max(0.01, p1); // λ 必须大于 0
+  }
+  int getParamCount() const override { return 1; }
+  QList<QString> getParamNames() const override { return {"率参数 (λ)"}; }
+  QList<double> getParamDefaults() const override { return {1.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{0.01, 20.0}};
   }
 };
 
@@ -170,6 +210,12 @@ public:
     Q_UNUSED(p2);
     m_df = std::max(1.0, p1); // 自由度必须至少为1
   }
+  int getParamCount() const override { return 1; }
+  QList<QString> getParamNames() const override { return {"自由度 (df)"}; }
+  QList<double> getParamDefaults() const override { return {10.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{1.0, 100.0}};
+  }
 };
 
 class ChiSquareDistribution : public BaseDistribution {
@@ -191,6 +237,12 @@ public:
   void setParameters(double p1, double p2) override {
     Q_UNUSED(p2);
     m_df = std::max(1.0, p1); // 自由度必须至少为1
+  }
+  int getParamCount() const override { return 1; }
+  QList<QString> getParamNames() const override { return {"自由度 (df)"}; }
+  QList<double> getParamDefaults() const override { return {5.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{1.0, 100.0}};
   }
 };
 
@@ -216,6 +268,14 @@ public:
     m_alpha = std::max(0.01, p1); // α 必须大于 0
     m_beta = std::max(0.01, p2);  // β 必须大于 0
   }
+  int getParamCount() const override { return 2; }
+  QList<QString> getParamNames() const override {
+    return {"形状参数 α", "形状参数 β"};
+  }
+  QList<double> getParamDefaults() const override { return {1.0, 1.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{0.01, 20.0}, {0.01, 20.0}};
+  }
 };
 
 class GeometricDistribution : public BaseDistribution {
@@ -237,6 +297,12 @@ public:
   void setParameters(double p1, double p2) override {
     Q_UNUSED(p2);
     m_p = std::clamp(p1, 0.01, 0.99);
+  }
+  int getParamCount() const override { return 1; }
+  QList<QString> getParamNames() const override { return {"成功概率 (p)"}; }
+  QList<double> getParamDefaults() const override { return {0.5}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{0.01, 0.99}};
   }
 };
 
@@ -267,6 +333,17 @@ public:
   int getN() const { return m_N; }
   int getK() const { return m_K; }
   int getn() const { return m_n; }
+  void setN(int N) { m_N = std::max(1, N); }
+  void setK(int K) { m_K = std::clamp(K, 0, m_N); }
+  void setn(int n) { m_n = std::max(1, std::min(n, m_N)); }
+  int getParamCount() const override { return 3; }
+  QList<QString> getParamNames() const override {
+    return {"总体容量 (N)", "成功数目 (K)", "样本容量 (n)"};
+  }
+  QList<double> getParamDefaults() const override { return {20.0, 10.0, 5.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{5.0, 100.0}, {1.0, 100.0}, {1.0, 50.0}};
+  }
 };
 
 struct DistFactory {

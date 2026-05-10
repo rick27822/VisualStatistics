@@ -16,10 +16,12 @@ public:
     ~NetworkPage();
 signals:
     void distSelected(DistType type);
+    void backToHome();
 
 private:
     Ui::NetworkPage *ui;
     void setupNodes();
+    void setupBackButton();
 };
 
 #endif // NETWORKPAGE_H

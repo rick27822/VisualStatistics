@@ -5,6 +5,14 @@ NetworkPage::NetworkPage(QWidget *parent)
     : QWidget(parent), ui(new Ui::NetworkPage) {
   ui->setupUi(this);
   setupNodes();
+  setupBackButton();
+}
+void NetworkPage::setupBackButton() {
+  connect(ui->btnBack, &QPushButton::clicked, [=]() { emit backToHome(); });
+  ui->btnBack->setStyleSheet(
+      "QPushButton { background-color: #2D2D2D; color: #00FFF2; "
+      "border: 1px solid #00FFF2; border-radius: 5px; padding: 5px 10px; }"
+      "QPushButton:hover { background-color: #00FFF2; color: #121212; }");
 }
 void NetworkPage::setupNodes() {
   connect(ui->btnNormal, &QPushButton::clicked,

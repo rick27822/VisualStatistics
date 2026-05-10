@@ -11,10 +11,15 @@ DetailPage::DetailPage(QWidget *parent)
           &DetailPage::onParameterChanged);
   connect(ui->Slider2, &QSlider::valueChanged, this,
           &DetailPage::onParameterChanged);
+  connect(ui->Slider3, &QSlider::valueChanged, this,
+          &DetailPage::onParameterChanged);
   connect(ui->btnToggleMode, &QPushButton::clicked, this,
           &DetailPage::toggleRenderMode);
   connect(ui->backRequested, &QPushButton::clicked, this,
           &DetailPage::backRequested);
+
+  ui->Slider3->hide();
+  ui->label3->hide();
 }
 void DetailPage::setupInitialStyle() {
   // 3b1b 风格：深色背景，青色高亮
@@ -44,139 +49,135 @@ void DetailPage::setupSliderRanges() {
   if (!m_dist)
     return;
 
-  switch (m_dist->getType()) {
-  case DistType::Normal:
-    ui->Slider1->setRange(-5, 5);
-    ui->Slider1->setValue(0);
-    ui->Slider2->setRange(1, 50);
-    ui->Slider2->setValue(10);
-    break;
-  case DistType::Binomial:
-    ui->Slider1->setRange(1, 50);
-    ui->Slider1->setValue(10);
-    ui->Slider2->setRange(0, 100);
-    ui->Slider2->setValue(50);
-    break;
-  case DistType::Poission:
-    ui->Slider1->setRange(1, 200);
-    ui->Slider1->setValue(50);
-    ui->Slider2->setRange(0, 100);
-    ui->Slider2->setValue(0);
-    break;
-  case DistType::Uniform:
-    ui->Slider1->setRange(0, 100);
-    ui->Slider1->setValue(0);
-    ui->Slider2->setRange(1, 100);
-    ui->Slider2->setValue(100);
-    break;
-  case DistType::Exponential:
-    ui->Slider1->setRange(1, 200);
-    ui->Slider1->setValue(100);
-    ui->Slider2->setRange(0, 100);
-    ui->Slider2->setValue(0);
-    break;
-  case DistType::StudentT:
-    ui->Slider1->setRange(1, 200);
-    ui->Slider1->setValue(10);
-    ui->Slider2->setRange(0, 100);
-    ui->Slider2->setValue(0);
-    break;
-  case DistType::ChiSquare:
-    ui->Slider1->setRange(1, 200);
-    ui->Slider1->setValue(5);
-    ui->Slider2->setRange(0, 100);
-    ui->Slider2->setValue(0);
-    break;
-  case DistType::Beta:
-    ui->Slider1->setRange(1, 200);
-    ui->Slider1->setValue(10);
-    ui->Slider2->setRange(1, 200);
-    ui->Slider2->setValue(10);
-    break;
-  case DistType::Geometric:
-    ui->Slider1->setRange(1, 99);
-    ui->Slider1->setValue(50);
-    ui->Slider2->setRange(0, 100);
-    ui->Slider2->setValue(0);
-    break;
-  case DistType::Hypergeometric:
-    ui->Slider1->setRange(5, 100);
-    ui->Slider1->setValue(40);
-    ui->Slider2->setRange(1, 100);
-    ui->Slider2->setValue(20);
-    break;
+  int paramCount = m_dist->getParamCount();
+  QList<QString> paramNames = m_dist->getParamNames();
+  QList<double> paramDefaults = m_dist->getParamDefaults();
+  QList<QPair<double, double>> paramRanges = m_dist->getParamRanges();
+
+  ui->Slider1->show();
+  ui->label1->show();
+  ui->Slider2->hide();
+  ui->label2->hide();
+  ui->Slider3->hide();
+  ui->label3->hide();
+
+  if (paramCount >= 1) {
+    ui->label1->setText(paramNames[0]);
+    double min1 = paramRanges[0].first;
+    double max1 = paramRanges[0].second;
+    double default1 = paramDefaults[0];
+
+    int sliderMax = 100;
+    if (max1 - min1 <= 10)
+      sliderMax = 100;
+    else if (max1 - min1 <= 100)
+      sliderMax = 100;
+    else
+      sliderMax = 200;
+
+    ui->Slider1->setRange(0, sliderMax);
+    ui->Slider1->setValue(
+        static_cast<int>((default1 - min1) / (max1 - min1) * sliderMax));
+  }
+
+  if (paramCount >= 2) {
+    ui->Slider2->show();
+    ui->label2->show();
+    ui->label2->setText(paramNames[1]);
+    double min2 = paramRanges[1].first;
+    double max2 = paramRanges[1].second;
+    double default2 = paramDefaults[1];
+
+    int sliderMax = 100;
+    if (max2 - min2 <= 10)
+      sliderMax = 100;
+    else if (max2 - min2 <= 100)
+      sliderMax = 100;
+    else
+      sliderMax = 200;
+
+    ui->Slider2->setRange(0, sliderMax);
+    ui->Slider2->setValue(
+        static_cast<int>((default2 - min2) / (max2 - min2) * sliderMax));
+  }
+
+  if (paramCount >= 3) {
+    ui->Slider3->show();
+    ui->label3->show();
+    ui->label3->setText(paramNames[2]);
+    double min3 = paramRanges[2].first;
+    double max3 = paramRanges[2].second;
+    double default3 = paramDefaults[2];
+
+    int sliderMax = 100;
+    if (max3 - min3 <= 10)
+      sliderMax = 100;
+    else if (max3 - min3 <= 100)
+      sliderMax = 100;
+    else
+      sliderMax = 200;
+
+    ui->Slider3->setRange(0, sliderMax);
+    ui->Slider3->setValue(
+        static_cast<int>((default3 - min3) / (max3 - min3) * sliderMax));
   }
 }
 void DetailPage::onParameterChanged() {
   if (!m_dist)
     return;
-  double val1 = ui->Slider1->value();
-  double val2 = ui->Slider2->value();
-  double param1 = val1;
-  double param2 = val2;
 
-  switch (m_dist->getType()) {
-  case DistType::Normal:
-    param1 = val1;
-    param2 = val2 / 10.0;
-    param2 = std::max(0.1, param2);
-    break;
-  case DistType::Binomial:
-    param1 = std::round(val1);
-    param1 = std::max(1.0, param1);
-    param2 = val2 / 100.0;
-    param2 = std::clamp(param2, 0.0, 1.0);
-    break;
-  case DistType::Poission:
-    param1 = val1 / 10.0;
-    param1 = std::max(0.01, param1);
-    param2 = 0.0;
-    break;
-  case DistType::Uniform:
-    param1 = val1 / 10.0;
-    param2 = val2 / 10.0;
-    if (param2 <= param1)
-      param2 = param1 + 0.1;
-    break;
-  case DistType::Exponential:
-    param1 = val1 / 100.0;
-    param1 = std::max(0.01, param1);
-    param2 = 0.0;
-    break;
-  case DistType::StudentT:
-    param1 = val1 / 1.0; // 直接使用滑块值作为自由度
-    param1 = std::max(1.0, param1);
-    param2 = 0.0;
-    break;
-  case DistType::ChiSquare:
-    param1 = val1 / 1.0; // 直接使用滑块值作为自由度
-    param1 = std::max(1.0, param1);
-    param2 = 0.0;
-    break;
-  case DistType::Beta:
-    param1 = val1 / 10.0; // α 参数，范围 0.1-20
-    param1 = std::max(0.01, param1);
-    param2 = val2 / 10.0; // β 参数，范围 0.1-20
-    param2 = std::max(0.01, param2);
-    break;
-  case DistType::Geometric:
-    param1 = val1 / 100.0; // p 参数，范围 0.01-0.99
-    param1 = std::clamp(param1, 0.01, 0.99);
-    param2 = 0.0;
-    break;
-  case DistType::Hypergeometric:
-    param1 = val1; // N 参数，范围 5-100
-    param1 = std::max(5.0, param1);
-    param2 = val2; // K 参数，范围 1-100
-    param2 = std::min(param2, param1);
-    break;
+  int paramCount = m_dist->getParamCount();
+  QList<QString> paramNames = m_dist->getParamNames();
+  QList<QPair<double, double>> paramRanges = m_dist->getParamRanges();
+
+  QList<double> params;
+
+  if (paramCount >= 1) {
+    double min1 = paramRanges[0].first;
+    double max1 = paramRanges[0].second;
+    double val1 = ui->Slider1->value();
+    double param1 = min1 + (val1 / ui->Slider1->maximum()) * (max1 - min1);
+    params.append(param1);
+    ui->label1->setText(
+        QString("%1: %2").arg(paramNames[0]).arg(param1, 0, 'f', 2));
   }
 
-  m_dist->setParameters(param1, param2);
-  ui->label1->setText(
-      QString("%1: %2").arg(m_dist->getParam1Name()).arg(param1));
-  ui->label2->setText(
-      QString("%1: %2").arg(m_dist->getParam2Name()).arg(param2));
+  if (paramCount >= 2) {
+    double min2 = paramRanges[1].first;
+    double max2 = paramRanges[1].second;
+    double val2 = ui->Slider2->value();
+    double param2 = min2 + (val2 / ui->Slider2->maximum()) * (max2 - min2);
+    params.append(param2);
+    ui->label2->setText(
+        QString("%1: %2").arg(paramNames[1]).arg(param2, 0, 'f', 2));
+  }
+
+  if (paramCount >= 3) {
+    double min3 = paramRanges[2].first;
+    double max3 = paramRanges[2].second;
+    double val3 = ui->Slider3->value();
+    double param3 = min3 + (val3 / ui->Slider3->maximum()) * (max3 - min3);
+    params.append(param3);
+    ui->label3->setText(
+        QString("%1: %2").arg(paramNames[2]).arg(param3, 0, 'f', 2));
+  }
+
+  double p1 = params.size() >= 1 ? params[0] : 0.0;
+  double p2 = params.size() >= 2 ? params[1] : 0.0;
+
+  if (m_dist->getType() == DistType::Hypergeometric) {
+    auto hyper = dynamic_cast<HypergeometricDistribution *>(m_dist);
+    if (hyper && params.size() >= 3) {
+      hyper->setParameters(p1, p2);
+      hyper->setN(static_cast<int>(p1));
+      hyper->setK(static_cast<int>(p2));
+      hyper->setn(static_cast<int>(params[2]));
+    } else {
+      m_dist->setParameters(p1, p2);
+    }
+  } else {
+    m_dist->setParameters(p1, p2);
+  }
 
   updatePlot();
 }
