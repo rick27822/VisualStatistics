@@ -15,7 +15,7 @@ DetailPage::DetailPage(QWidget *parent)
           &DetailPage::onParameterChanged);
   connect(ui->btnToggleMode, &QPushButton::clicked, this,
           &DetailPage::toggleRenderMode);
-  connect(ui->backRequested, &QPushButton::clicked, this,
+  connect(ui->btnBack, &QPushButton::clicked, this,
           &DetailPage::backRequested);
 
   ui->Slider3->hide();
@@ -43,7 +43,21 @@ void DetailPage::setDistribution(BaseDistribution *dist) {
     ui->labelTitle->setText(m_dist->getName());
     setupSliderRanges();
     onParameterChanged();
+    updateDescription();
   }
+}
+void DetailPage::updateDescription() {
+  if (!m_dist)
+    return;
+  QString content = QString("<h3>%1</h3>")
+                        .arg(m_dist->getName()) +
+                    QString("<p><strong>函数表达式：</strong>%1</p>")
+                        .arg(m_dist->getFunctionExpression()) +
+                    QString("<p><strong>参数意义：</strong>%1</p>")
+                        .arg(m_dist->getDescription()) +
+                    QString("<p><strong>使用场景：</strong>%1</p>")
+                        .arg(m_dist->getUsageScenario());
+  ui->textBrowser->setHtml(content);
 }
 void DetailPage::setupSliderRanges() {
   if (!m_dist)
