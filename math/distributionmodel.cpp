@@ -1,6 +1,5 @@
 #include "distributionmodel.h"
 #include<cmath>
-#include<algorithm>
 
 double NormalDistribution::calculate(double x) const {
     double exponent = -0.5 * std::pow((x - m_mu) / m_sigma, 2);

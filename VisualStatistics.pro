@@ -13,15 +13,24 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     math/distributionmodel.cpp \
+    pages/detailpage.cpp \
+    pages/networkpage.cpp \
+    pages/welcomepage.cpp \
     qcustomplot.cpp
 
 HEADERS += \
     mainwindow.h \
     math/distributionmodel.h \
+    pages/detailpage.h \
+    pages/networkpage.h \
+    pages/welcomepage.h \
     qcustomplot.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    pages/detailpage.ui \
+    pages/networkpage.ui \
+    pages/welcomepage.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,8 +1,6 @@
 #ifndef DISTRIBUTIONMODEL_H
 #define DISTRIBUTIONMODEL_H
 
-#include<cmath>
-#include<vector>
 #include<QPair>
 #include<QString>
 
@@ -60,6 +58,16 @@ public:
     void setParameters(double p1, double p2) override {
         n = std::max(1, (int)p1); // n 必须是正整数
         p = std::clamp(p2, 0.0, 1.0); // p 必须在 0 到 1 之间
+    }
+};
+
+struct DistFactory {
+    static BaseDistribution* create(DistType type) {
+        switch (type) {
+            case DistType::Normal:    return new NormalDistribution(0.0, 1.0);
+            case DistType::Binomial:  return new BinomialDistribution(10, 0.5);
+            default:                  return new NormalDistribution(0.0, 1.0);
+        }
     }
 };
 
