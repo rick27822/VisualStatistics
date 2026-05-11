@@ -331,3 +331,108 @@ double HypergeometricDistribution::calculateCDF(double x) const {
 QPair<double, double> HypergeometricDistribution::getSuggestedRange() const {
   return qMakePair(-1.0, static_cast<double>(m_n) + 1.0);
 }
+
+double FDistribution::calculate(double x) const {
+  if (x <= 0)
+    return 0.0;
+
+  double df1 = m_df1;
+  double df2 = m_df2;
+  double half_df1 = df1 / 2.0;
+  double half_df2 = df2 / 2.0;
+  double half_sum = (df1 + df2) / 2.0;
+
+  // F 分布的概率密度函数
+  double term1 = std::tgamma(half_sum);
+  double term2 = std::pow(df1 / df2, half_df1);
+  double term3 = std::pow(x, half_df1 - 1.0);
+  double term4 = std::tgamma(half_df1) * std::tgamma(half_df2);
+  double term5 = std::pow(1.0 + (df1 / df2) * x, half_sum);
+
+  return (term1 * term2 * term3) / (term4 * term5);
+}
+
+double FDistribution::calculateCDF(double x) const {
+  if (x <= 0)
+    return 0.0;
+
+  double df1 = m_df1;
+  double df2 = m_df2;
+
+  // 使用数值积分计算 F 分布的 CDF
+  const int steps = 10000;
+  double integral = 0.0;
+  double a = 0.0;
+  double b = x;
+  double h = (b - a) / steps;
+
+  for (int i = 0; i < steps; ++i) {
+    double x1 = a + i * h;
+    double x2 = x1 + h;
+    double f1 = calculate(x1);
+    double f2 = calculate(x2);
+    integral += (f1 + f2) * h / 2.0;
+  }
+
+  return std::min(1.0, std::max(0.0, integral));
+}
+
+QPair<double, double> FDistribution::getSuggestedRange() const {
+  // F 分布的建议范围
+  double mode = (m_df1 - 2.0) * m_df2 / (m_df1 * (m_df2 + 2.0));
+  if (mode <= 0)
+    mode = 1.0;
+  double max_x = mode + 3.0 * (1.0 + m_df1 / m_df2);
+  return qMakePair(-0.1, max_x + 2.0);
+}
+
+double GammaDistribution::calculate(double x) const {
+  if (x <= 0)
+    return 0.0;
+
+  double alpha = m_alpha;
+  double beta = m_beta;
+
+  double numerator =
+      std::pow(beta, alpha) * std::pow(x, alpha - 1.0) * std::exp(-beta * x);
+  double denominator = std::tgamma(alpha);
+
+  return numerator / denominator;
+}
+
+double GammaDistribution::calculateCDF(double x) const {
+  if (x <= 0)
+    return 0.0;
+
+  double alpha = m_alpha;
+  double beta = m_beta;
+  double scaled_x = beta * x;
+
+  double gamma_alpha = std::tgamma(alpha);
+  if (gamma_alpha == 0.0)
+    return 1.0;
+
+  const int steps = 10000;
+  double integral = 0.0;
+  double a = 0.0;
+  double b = scaled_x;
+  double h = (b - a) / steps;
+
+  for (int i = 0; i < steps; ++i) {
+    double x1 = a + i * h;
+    double x2 = x1 + h;
+    double f1 = (x1 > 0) ? std::pow(x1, alpha - 1.0) * std::exp(-x1) : 0.0;
+    double f2 = (x2 > 0) ? std::pow(x2, alpha - 1.0) * std::exp(-x2) : 0.0;
+    integral += (f1 + f2) * h / 2.0;
+  }
+
+  return std::min(1.0, std::max(0.0, integral / gamma_alpha));
+}
+
+QPair<double, double> GammaDistribution::getSuggestedRange() const {
+  double mean = m_alpha / m_beta;
+  double variance = m_alpha / (m_beta * m_beta);
+  double std_dev = std::sqrt(variance);
+  double max_x = mean + 4.0 * std_dev;
+  return qMakePair(-0.5, max_x + 1.0);
+}

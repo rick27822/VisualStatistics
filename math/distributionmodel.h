@@ -17,7 +17,9 @@ enum class DistType {
   ChiSquare,
   Beta,
   Geometric,
-  Hypergeometric
+  Hypergeometric,
+  FDistribution,
+  Gamma
 };
 enum class DistributionCategory { Continuous, Discrete };
 
@@ -455,6 +457,95 @@ public:
   }
 };
 
+class FDistribution : public BaseDistribution {
+private:
+  double m_df1; // 分子自由度
+  double m_df2; // 分母自由度
+
+public:
+  FDistribution(double df1 = 10.0, double df2 = 10.0)
+      : m_df1(df1), m_df2(df2) {}
+  double calculate(double x) const override;
+  double calculateCDF(double x) const override;
+  QPair<double, double> getSuggestedRange() const override;
+  QString getParam1Name() const override { return "分子自由度 df₁"; }
+  QString getParam2Name() const override { return "分母自由度 df₂"; }
+  QString getName() const override { return "F分布"; }
+  DistType getType() const override { return DistType::FDistribution; }
+  DistributionCategory getCategory() const override {
+    return DistributionCategory::Continuous;
+  }
+  void setParameters(double p1, double p2) override {
+    m_df1 = std::max(1.0, p1); // 自由度至少为1
+    m_df2 = std::max(1.0, p2);
+  }
+  int getParamCount() const override { return 2; }
+  QList<QString> getParamNames() const override {
+    return {"分子自由度 df₁", "分母自由度 df₂"};
+  }
+  QList<double> getParamDefaults() const override { return {10.0, 10.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{1.0, 100.0}, {1.0, 100.0}};
+  }
+  QString getDescription() const override {
+    return "F分布描述两个独立卡方分布除以各自自由度后比值的概率分布。df₁是分子"
+           "自由度，df₂是分母自由度。";
+  }
+  QString getUsageScenario() const override {
+    return "用于方差分析、回归方程显著性检验、两个总体方差比的检验等统计推断场"
+           "景。";
+  }
+  QString getFunctionExpression() const override {
+    return "f(x) = Γ((df₁+df₂)/2) * (df₁/df₂)^(df₁/2) * x^(df₁/2-1) / ( "
+           "Γ(df₁/2) * Γ(df₂/2) * (1 + (df₁/df₂)x)^((df₁+df₂)/2))";
+  }
+};
+
+class GammaDistribution : public BaseDistribution {
+private:
+  double m_alpha; // 形状参数
+  double m_beta;  // 率参数
+
+public:
+  GammaDistribution(double alpha = 1.0, double beta = 1.0)
+      : m_alpha(alpha), m_beta(beta) {}
+  double calculate(double x) const override;
+  double calculateCDF(double x) const override;
+  QPair<double, double> getSuggestedRange() const override;
+  QString getParam1Name() const override { return "形状参数 α"; }
+  QString getParam2Name() const override { return "率参数 β"; }
+  QString getName() const override { return "伽马分布"; }
+  DistType getType() const override { return DistType::Gamma; }
+  DistributionCategory getCategory() const override {
+    return DistributionCategory::Continuous;
+  }
+  void setParameters(double p1, double p2) override {
+    m_alpha = std::max(0.01, p1); // α 必须大于 0
+    m_beta = std::max(0.01, p2);  // β 必须大于 0
+  }
+  int getParamCount() const override { return 2; }
+  QList<QString> getParamNames() const override {
+    return {"形状参数 α", "率参数 β"};
+  }
+  QList<double> getParamDefaults() const override { return {1.0, 1.0}; }
+  QList<QPair<double, double>> getParamRanges() const override {
+    return {{0.01, 20.0}, {0.01, 20.0}};
+  }
+  QString getDescription() const override {
+    return "伽马分布是连续概率分布，用于描述独立事件发生的时间间隔的总和。α是形"
+           "状"
+           "参数，β是率参数。当α=1时退化为指数分布。";
+  }
+  QString getUsageScenario() const override {
+    return "用于描述等待多个事件发生的时间，如排队论中的服务时间、可靠性分析中"
+           "的"
+           "失效时间等。也常用于贝叶斯统计中的先验分布。";
+  }
+  QString getFunctionExpression() const override {
+    return "f(x) = (β^α / Γ(α)) * x^(α-1) * e^(-βx), x ≥ 0";
+  }
+};
+
 struct DistFactory {
   static BaseDistribution *create(DistType type) {
     switch (type) {
@@ -478,6 +569,10 @@ struct DistFactory {
       return new GeometricDistribution(0.5);
     case DistType::Hypergeometric:
       return new HypergeometricDistribution(20, 10, 5);
+    case DistType::FDistribution:
+      return new FDistribution(10.0, 10.0);
+    case DistType::Gamma:
+      return new GammaDistribution(1.0, 1.0);
     default:
       return new NormalDistribution(0.0, 1.0);
     }

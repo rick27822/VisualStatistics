@@ -1,11 +1,11 @@
 #include "networkpage.h"
 #include "ui_networkpage.h"
+#include <QGradient>
+#include <QMouseEvent>
+#include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <QPaintEvent>
 #include <QResizeEvent>
-#include <QMouseEvent>
-#include <QGradient>
 
 NetworkPage::NetworkPage(QWidget *parent)
     : QWidget(parent), ui(new Ui::NetworkPage), hoveredButton(nullptr) {
@@ -72,6 +72,12 @@ void NetworkPage::setupNodes() {
   connect(ui->btnHypergeometric, &QPushButton::clicked,
           [=]() { emit distSelected(DistType::Hypergeometric); });
 
+  connect(ui->btnFDistribution, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::FDistribution); });
+
+  connect(ui->btnGamma, &QPushButton::clicked,
+          [=]() { emit distSelected(DistType::Gamma); });
+
   QString centerNodeStyle = "QPushButton { "
                             "border-radius: 20px; "
                             "background-color: #1E1E1E; "
@@ -96,6 +102,8 @@ void NetworkPage::setupNodes() {
   applyNodeStyle(ui->btnBeta);
   applyNodeStyle(ui->btnGeometric);
   applyNodeStyle(ui->btnHypergeometric);
+  applyNodeStyle(ui->btnFDistribution);
+  applyNodeStyle(ui->btnGamma);
 }
 
 void NetworkPage::updateButtonPositions() {
@@ -108,8 +116,9 @@ void NetworkPage::updateButtonPositions() {
 
   int normalBtnWidth = 150;
   int normalBtnHeight = 55;
-  normalBtnRect = QRect(centerX - normalBtnWidth / 2, centerY - normalBtnHeight / 2,
-                        normalBtnWidth, normalBtnHeight);
+  normalBtnRect =
+      QRect(centerX - normalBtnWidth / 2, centerY - normalBtnHeight / 2,
+            normalBtnWidth, normalBtnHeight);
   ui->btnNormal->setGeometry(normalBtnRect);
 
   int nodeWidth = 155;
@@ -118,70 +127,87 @@ void NetworkPage::updateButtonPositions() {
   int verticalOffset = 120;
   int verticalSpacing = 120;
 
-  binomialBtnRect = QRect(centerX - horizontalOffset - nodeWidth,
-                          centerY - verticalOffset - nodeHeight / 2,
-                          nodeWidth, nodeHeight);
+  binomialBtnRect =
+      QRect(centerX - horizontalOffset - nodeWidth,
+            centerY - verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
   ui->btnBinomial->setGeometry(binomialBtnRect);
 
   poissonBtnRect = QRect(centerX - horizontalOffset - nodeWidth,
-                         centerY - nodeHeight / 2,
-                         nodeWidth, nodeHeight);
+                         centerY - nodeHeight / 2, nodeWidth, nodeHeight);
   ui->btnPoisson->setGeometry(poissonBtnRect);
 
-  uniformBtnRect = QRect(centerX + horizontalOffset,
-                         centerY - verticalOffset - nodeHeight / 2,
-                         nodeWidth, nodeHeight);
+  uniformBtnRect =
+      QRect(centerX + horizontalOffset,
+            centerY - verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
   ui->btnUniform->setGeometry(uniformBtnRect);
 
   exponentialBtnRect = QRect(centerX + horizontalOffset,
-                             centerY - nodeHeight / 2,
-                             nodeWidth, nodeHeight);
+                             centerY - nodeHeight / 2, nodeWidth, nodeHeight);
   ui->btnExponential->setGeometry(exponentialBtnRect);
 
-  studentTBtnRect = QRect(centerX - horizontalOffset - nodeWidth,
-                          centerY + verticalOffset - nodeHeight / 2,
-                          nodeWidth, nodeHeight);
+  studentTBtnRect =
+      QRect(centerX - horizontalOffset - nodeWidth,
+            centerY + verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
   ui->btnStudentT->setGeometry(studentTBtnRect);
 
-  chiSquareBtnRect = QRect(centerX - horizontalOffset - nodeWidth,
-                           centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
-                           nodeWidth, nodeHeight);
+  chiSquareBtnRect =
+      QRect(centerX - horizontalOffset - nodeWidth,
+            centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
+            nodeWidth, nodeHeight);
   ui->btnChiSquare->setGeometry(chiSquareBtnRect);
 
-  betaBtnRect = QRect(centerX + horizontalOffset,
-                      centerY + verticalOffset - nodeHeight / 2,
-                      nodeWidth, nodeHeight);
+  betaBtnRect =
+      QRect(centerX + horizontalOffset,
+            centerY + verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
   ui->btnBeta->setGeometry(betaBtnRect);
 
-  geometricBtnRect = QRect(centerX + horizontalOffset,
-                           centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
-                           nodeWidth, nodeHeight);
+  geometricBtnRect =
+      QRect(centerX + horizontalOffset,
+            centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
+            nodeWidth, nodeHeight);
   ui->btnGeometric->setGeometry(geometricBtnRect);
 
   int hypergeometricWidth = 170;
-  hypergeometricBtnRect = QRect(centerX - hypergeometricWidth / 2,
-                                centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
-                                hypergeometricWidth, nodeHeight);
+  hypergeometricBtnRect =
+      QRect(centerX - hypergeometricWidth / 2,
+            centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
+            hypergeometricWidth, nodeHeight);
   ui->btnHypergeometric->setGeometry(hypergeometricBtnRect);
+
+  // 设置 F 分布按钮的位置，放在底部中央
+  fDistBtnRect = QRect(centerX - nodeWidth / 2,
+                       centerY + verticalOffset + verticalSpacing * 2,
+                       nodeWidth, nodeHeight);
+  ui->btnFDistribution->setGeometry(fDistBtnRect);
+
+  // 设置伽马分布按钮的位置，放在中间偏下
+  gammaBtnRect =
+      QRect(centerX - nodeWidth / 2, centerY + verticalOffset - nodeHeight / 2,
+            nodeWidth, nodeHeight);
+  ui->btnGamma->setGeometry(gammaBtnRect);
 }
 
-void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start, const QPoint &end, bool highlighted) {
+void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
+                                  const QPoint &end, bool highlighted) {
   QPainterPath path;
   path.moveTo(start);
 
   QPoint controlPoint;
   if (end.x() < start.x()) {
-    controlPoint = QPoint((start.x() + end.x()) / 2 - 50, (start.y() + end.y()) / 2);
+    controlPoint =
+        QPoint((start.x() + end.x()) / 2 - 50, (start.y() + end.y()) / 2);
   } else if (end.x() > start.x()) {
-    controlPoint = QPoint((start.x() + end.x()) / 2 + 50, (start.y() + end.y()) / 2);
+    controlPoint =
+        QPoint((start.x() + end.x()) / 2 + 50, (start.y() + end.y()) / 2);
   } else {
-    controlPoint = QPoint((start.x() + end.x()) / 2, (start.y() + end.y()) / 2 - 50);
+    controlPoint =
+        QPoint((start.x() + end.x()) / 2, (start.y() + end.y()) / 2 - 50);
   }
 
   path.quadTo(controlPoint, end);
 
   int lineWidth = highlighted ? 4 : 2;
-  
+
   if (highlighted) {
     QLinearGradient gradient(start, end);
     gradient.setColorAt(0, QColor("#00FFF2"));
@@ -204,7 +230,7 @@ void NetworkPage::paintEvent(QPaintEvent *) {
 
   QPoint center = normalBtnRect.center();
 
-  QVector<QPair<QPushButton*, QRect>> nodes = {
+  QVector<QPair<QPushButton *, QRect>> nodes = {
       {ui->btnBinomial, binomialBtnRect},
       {ui->btnPoisson, poissonBtnRect},
       {ui->btnUniform, uniformBtnRect},
@@ -213,8 +239,9 @@ void NetworkPage::paintEvent(QPaintEvent *) {
       {ui->btnChiSquare, chiSquareBtnRect},
       {ui->btnBeta, betaBtnRect},
       {ui->btnGeometric, geometricBtnRect},
-      {ui->btnHypergeometric, hypergeometricBtnRect}
-  };
+      {ui->btnHypergeometric, hypergeometricBtnRect},
+      {ui->btnFDistribution, fDistBtnRect},
+      {ui->btnGamma, gammaBtnRect}};
 
   for (const auto &pair : nodes) {
     QPoint nodeCenter = pair.second.center();
@@ -232,7 +259,7 @@ void NetworkPage::paintEvent(QPaintEvent *) {
   for (const auto &pair : nodes) {
     QPoint nodeCenter = pair.second.center();
     bool highlighted = (hoveredButton == pair.first);
-    
+
     if (highlighted) {
       QRadialGradient nodeGradient(nodeCenter, 5);
       nodeGradient.setColorAt(0, QColor("#00FFFF"));
@@ -252,11 +279,11 @@ void NetworkPage::resizeEvent(QResizeEvent *) {
 }
 
 void NetworkPage::mouseMoveEvent(QMouseEvent *event) {
-  QVector<QPushButton*> buttons = {
-      ui->btnBinomial, ui->btnPoisson, ui->btnUniform, ui->btnExponential,
-      ui->btnStudentT, ui->btnChiSquare, ui->btnBeta, ui->btnGeometric,
-      ui->btnHypergeometric, ui->btnNormal
-  };
+  QVector<QPushButton *> buttons = {
+      ui->btnBinomial,      ui->btnPoisson,   ui->btnUniform,
+      ui->btnExponential,   ui->btnStudentT,  ui->btnChiSquare,
+      ui->btnBeta,          ui->btnGeometric, ui->btnHypergeometric,
+      ui->btnFDistribution, ui->btnGamma,     ui->btnNormal};
 
   QPushButton *newHovered = nullptr;
   for (QPushButton *btn : buttons) {
@@ -277,6 +304,4 @@ void NetworkPage::leaveEvent(QEvent *) {
   update();
 }
 
-NetworkPage::~NetworkPage() {
-  delete ui;
-}
+NetworkPage::~NetworkPage() { delete ui; }

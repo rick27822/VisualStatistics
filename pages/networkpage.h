@@ -42,6 +42,8 @@ private:
     QRect betaBtnRect;
     QRect geometricBtnRect;
     QRect hypergeometricBtnRect;
+    QRect fDistBtnRect;
+    QRect gammaBtnRect;
 
     void setupNodes();
     void setupBackButton();
