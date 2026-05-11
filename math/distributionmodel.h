@@ -546,6 +546,11 @@ public:
   }
 };
 
+struct RelatedDistribution {
+  DistType relatedType;
+  QString relationDescription;
+};
+
 struct DistFactory {
   static BaseDistribution *create(DistType type) {
     switch (type) {
@@ -576,6 +581,70 @@ struct DistFactory {
     default:
       return new NormalDistribution(0.0, 1.0);
     }
+  }
+
+  static QList<RelatedDistribution> getRelatedDistributions(DistType type) {
+    QList<RelatedDistribution> relations;
+    switch (type) {
+    case DistType::Normal:
+      relations.append(
+          {DistType::Binomial,
+           "二项分布在n很大时（De Moivre-Laplace定理，近似为正态分布"});
+      relations.append(
+          {DistType::ChiSquare, "卡方分布由独立标准正态变量平方和构成"});
+      relations.append({DistType::StudentT, "t分布在自由度很大时近似正态分布"});
+      break;
+    case DistType::Binomial:
+      relations.append({DistType::Normal,
+                        "n很大p适中时（De Moivre-Laplace定理，近似为正态分布"});
+      relations.append(
+          {DistType::Poission, "n→∞，p→0且np=λ时，近似为泊松分布"});
+      relations.append(
+          {DistType::Hypergeometric, "总体N很大时，超几何分布近似为二项分布"});
+      break;
+    case DistType::Poission:
+      relations.append({DistType::Binomial, "二项分布在n→∞，p→0时的极限"});
+      relations.append(
+          {DistType::Exponential, "指数分布描述泊松过程中事件间隔时间"});
+      relations.append({DistType::Normal, "λ很大时近似为正态分布"});
+      break;
+    case DistType::Exponential:
+      relations.append(
+          {DistType::Poission, "指数分布是泊松过程中两次事件的时间间隔"});
+      relations.append({DistType::Gamma, "n个独立指数变量之和服从伽马分布"});
+      break;
+    case DistType::StudentT:
+      relations.append({DistType::Normal, "自由度很大时近似为正态分布"});
+      relations.append(
+          {DistType::FDistribution, "t²(df)的平方服从F(1, df)分布"});
+      break;
+    case DistType::ChiSquare:
+      relations.append({DistType::Normal, "由独立标准正态变量平方和构成"});
+      relations.append({DistType::Gamma, "当伽马(α=df/2, β=1/2)为卡方分布"});
+      relations.append(
+          {DistType::FDistribution, "两个独立卡方变量比服从F分布"});
+      break;
+    case DistType::Beta:
+      relations.append(
+          {DistType::Gamma, "X/(X+Y)服从Beta分布，X和Y为独立伽马变量"});
+      relations.append({DistType::Uniform, "α=β=1时退化为均匀分布"});
+      break;
+    case DistType::Hypergeometric:
+      relations.append({DistType::Binomial, "总体N很大时近似为二项分布"});
+      break;
+    case DistType::FDistribution:
+      relations.append({DistType::ChiSquare, "由两个独立卡方变量比构成"});
+      relations.append({DistType::StudentT, "t²(df) = F(1, df)"});
+      break;
+    case DistType::Gamma:
+      relations.append({DistType::Exponential, "α=1时退化为指数分布"});
+      relations.append({DistType::ChiSquare, "α=df/2, β=1/2时为卡方分布"});
+      relations.append({DistType::Beta, "X/(X+Y)服从Beta分布"});
+      break;
+    default:
+      break;
+    }
+    return relations;
   }
 };
 

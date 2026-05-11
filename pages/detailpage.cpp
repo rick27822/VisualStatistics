@@ -15,8 +15,11 @@ DetailPage::DetailPage(QWidget *parent)
           &DetailPage::onParameterChanged);
   connect(ui->btnToggleMode, &QPushButton::clicked, this,
           &DetailPage::toggleRenderMode);
-  connect(ui->btnBack, &QPushButton::clicked, this,
-          &DetailPage::backRequested);
+  connect(ui->btnBack, &QPushButton::clicked, this, &DetailPage::backRequested);
+  connect(ui->textBrowser_2, &QTextBrowser::anchorClicked, this,
+          &DetailPage::onLinkClicked);
+  ui->textBrowser_2->setOpenLinks(false);
+  ui->textBrowser_2->setOpenExternalLinks(false);
 
   ui->Slider3->hide();
   ui->label3->hide();
@@ -36,6 +39,15 @@ void DetailPage::setupInitialStyle() {
 
   // 隐藏不必要的边框线，增加呼吸感
   ui->customPlot->axisRect()->setupFullAxesBox(false);
+
+  // 设置 textBrowser 样式
+  QString browserStyle = "QTextBrowser { background-color: #121212; color: "
+                         "#E0E0E0; border: none; }";
+  ui->textBrowser->setStyleSheet(browserStyle);
+  ui->textBrowser_2->setStyleSheet(browserStyle);
+
+  // 设置 textBrowser_2 的交互标志，使链接可以点击
+  ui->textBrowser_2->setTextInteractionFlags(Qt::TextBrowserInteraction);
 }
 void DetailPage::setDistribution(BaseDistribution *dist) {
   m_dist = dist;
@@ -49,8 +61,7 @@ void DetailPage::setDistribution(BaseDistribution *dist) {
 void DetailPage::updateDescription() {
   if (!m_dist)
     return;
-  QString content = QString("<h3>%1</h3>")
-                        .arg(m_dist->getName()) +
+  QString content = QString("<h3>%1</h3>").arg(m_dist->getName()) +
                     QString("<p><strong>函数表达式：</strong>%1</p>")
                         .arg(m_dist->getFunctionExpression()) +
                     QString("<p><strong>参数意义：</strong>%1</p>")
@@ -58,6 +69,57 @@ void DetailPage::updateDescription() {
                     QString("<p><strong>使用场景：</strong>%1</p>")
                         .arg(m_dist->getUsageScenario());
   ui->textBrowser->setHtml(content);
+  updateRelatedDistributions();
+}
+
+void DetailPage::updateRelatedDistributions() {
+  if (!m_dist) {
+    ui->textBrowser_2->clear();
+    return;
+  }
+
+  QList<RelatedDistribution> relations =
+      DistFactory::getRelatedDistributions(m_dist->getType());
+
+  QString content = "<h3>相关分布</h3>";
+
+  if (relations.isEmpty()) {
+    content += "<p>暂无相关分布信息</p>";
+  } else {
+    for (const auto &related : relations) {
+      BaseDistribution *relatedDist = DistFactory::create(related.relatedType);
+      if (relatedDist) {
+        content += QString("<div style='margin: 10px 0; padding: 8px; border: "
+                           "1px solid #00FFF2; border-radius: 5px;'>");
+        content +=
+            QString("<p><strong>%1</strong></p>").arg(relatedDist->getName());
+        content += QString("<p>%1</p>").arg(related.relationDescription);
+        content += QString("<p><a href='dist://jump/%1' style='color: "
+                           "#00FFFF;'>[跳转]</a></p>")
+                       .arg(static_cast<int>(related.relatedType));
+        content += "</div>";
+        delete relatedDist;
+      }
+    }
+  }
+
+  ui->textBrowser_2->setHtml(content);
+}
+
+void DetailPage::onLinkClicked(const QUrl &url) {
+  if (url.scheme() == "dist" && url.host() == "jump") {
+    QString path = url.path();
+    // 移除开头的斜杠
+    if (path.startsWith("/")) {
+      path = path.mid(1);
+    }
+    bool ok;
+    int typeInt = path.toInt(&ok);
+    if (ok) {
+      DistType type = static_cast<DistType>(typeInt);
+      emit jumpToDistribution(type);
+    }
+  }
 }
 void DetailPage::setupSliderRanges() {
   if (!m_dist)

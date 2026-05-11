@@ -39,6 +39,10 @@ void MainWindow::setupConnections() {
     connect(m_detailPage, &DetailPage::backRequested, [=](){
         m_stack->setCurrentIndex(1);
     });
+    // 详情页 -> 其他分布详情页 (跳转)
+    connect(m_detailPage, &DetailPage::jumpToDistribution, [=](DistType type){
+        m_detailPage->setDistribution(DistFactory::create(type));
+    });
 
     // 关系网 -> 首页 (返回)
     connect(m_networkPage, &NetworkPage::backToHome, [=](){

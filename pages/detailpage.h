@@ -19,10 +19,12 @@ public:
   void setDistribution(BaseDistribution *dist);
 signals:
   void backRequested();
+  void jumpToDistribution(DistType type);
 
 private slots:
   void onParameterChanged();
   void toggleRenderMode();
+  void onLinkClicked(const QUrl &url);
 
 private:
   Ui::DetailPage *ui;
@@ -33,6 +35,7 @@ private:
   void setupSliderRanges();
   void updatePlot();
   void updateDescription();
+  void updateRelatedDistributions();
   void plotContinuousDistribution(double start, double end);
   void plotDiscreteDistribution(double start, double end);
 };
