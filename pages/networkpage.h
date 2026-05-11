@@ -10,6 +10,12 @@ namespace Ui {
 class NetworkPage;
 }
 
+struct DistributionRelation {
+    QRect *sourceRect;
+    QRect *targetRect;
+    QString condition;
+};
+
 class NetworkPage : public QWidget
 {
     Q_OBJECT
@@ -44,12 +50,15 @@ private:
     QRect hypergeometricBtnRect;
     QRect fDistBtnRect;
     QRect gammaBtnRect;
+    QVector<DistributionRelation> relations;
 
     void setupNodes();
     void setupBackButton();
     void updateButtonPositions();
     void applyNodeStyle(QPushButton *btn);
-    void drawBezierCurve(QPainter &painter, const QPoint &start, const QPoint &end, bool highlighted);
+    void setupRelations();
+    void drawBezierCurve(QPainter &painter, const QPoint &start, const QPoint &end, const QString &text, bool highlighted);
+    void drawRelationText(QPainter &painter, const QPoint &start, const QPoint &end, const QString &text);
 };
 
 #endif // NETWORKPAGE_H

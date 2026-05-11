@@ -13,6 +13,7 @@ NetworkPage::NetworkPage(QWidget *parent)
   setupBackButton();
   setupNodes();
   updateButtonPositions();
+  setupRelations();
 }
 
 void NetworkPage::setupBackButton() {
@@ -123,72 +124,83 @@ void NetworkPage::updateButtonPositions() {
 
   int nodeWidth = 155;
   int nodeHeight = 45;
-  int horizontalOffset = 220;
-  int verticalOffset = 120;
-  int verticalSpacing = 120;
 
-  binomialBtnRect =
-      QRect(centerX - horizontalOffset - nodeWidth,
-            centerY - verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
+  binomialBtnRect = QRect(centerX - 380, centerY - 100, nodeWidth, nodeHeight);
   ui->btnBinomial->setGeometry(binomialBtnRect);
 
-  poissonBtnRect = QRect(centerX - horizontalOffset - nodeWidth,
-                         centerY - nodeHeight / 2, nodeWidth, nodeHeight);
+  poissonBtnRect = QRect(centerX - 120, centerY - 300, nodeWidth, nodeHeight);
   ui->btnPoisson->setGeometry(poissonBtnRect);
 
-  uniformBtnRect =
-      QRect(centerX + horizontalOffset,
-            centerY - verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
+  uniformBtnRect = QRect(centerX + 300, centerY - 280, nodeWidth, nodeHeight);
   ui->btnUniform->setGeometry(uniformBtnRect);
 
-  exponentialBtnRect = QRect(centerX + horizontalOffset,
-                             centerY - nodeHeight / 2, nodeWidth, nodeHeight);
+  exponentialBtnRect =
+      QRect(centerX + 400, centerY - 80, nodeWidth, nodeHeight);
   ui->btnExponential->setGeometry(exponentialBtnRect);
 
-  studentTBtnRect =
-      QRect(centerX - horizontalOffset - nodeWidth,
-            centerY + verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
+  studentTBtnRect = QRect(centerX - 380, centerY + 220, nodeWidth, nodeHeight);
   ui->btnStudentT->setGeometry(studentTBtnRect);
 
-  chiSquareBtnRect =
-      QRect(centerX - horizontalOffset - nodeWidth,
-            centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
-            nodeWidth, nodeHeight);
+  chiSquareBtnRect = QRect(centerX - 450, centerY + 50, nodeWidth, nodeHeight);
   ui->btnChiSquare->setGeometry(chiSquareBtnRect);
 
-  betaBtnRect =
-      QRect(centerX + horizontalOffset,
-            centerY + verticalOffset - nodeHeight / 2, nodeWidth, nodeHeight);
+  betaBtnRect = QRect(centerX + 380, centerY + 250, nodeWidth, nodeHeight);
   ui->btnBeta->setGeometry(betaBtnRect);
 
-  geometricBtnRect =
-      QRect(centerX + horizontalOffset,
-            centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
-            nodeWidth, nodeHeight);
+  geometricBtnRect = QRect(centerX + 80, centerY + 340, nodeWidth, nodeHeight);
   ui->btnGeometric->setGeometry(geometricBtnRect);
 
   int hypergeometricWidth = 170;
   hypergeometricBtnRect =
-      QRect(centerX - hypergeometricWidth / 2,
-            centerY + verticalOffset + verticalSpacing - nodeHeight / 2,
-            hypergeometricWidth, nodeHeight);
+      QRect(centerX + 220, centerY - 380, hypergeometricWidth, nodeHeight);
   ui->btnHypergeometric->setGeometry(hypergeometricBtnRect);
 
-  // 设置 F 分布按钮的位置，放在底部中央
-  fDistBtnRect = QRect(centerX - nodeWidth / 2,
-                       centerY + verticalOffset + verticalSpacing * 2,
-                       nodeWidth, nodeHeight);
+  fDistBtnRect = QRect(centerX - 250, centerY + 380, nodeWidth, nodeHeight);
   ui->btnFDistribution->setGeometry(fDistBtnRect);
 
-  // 设置伽马分布按钮的位置，放在中间偏下
-  gammaBtnRect =
-      QRect(centerX - nodeWidth / 2, centerY + verticalOffset - nodeHeight / 2,
-            nodeWidth, nodeHeight);
+  gammaBtnRect = QRect(centerX + 250, centerY + 120, nodeWidth, nodeHeight);
   ui->btnGamma->setGeometry(gammaBtnRect);
 }
 
+void NetworkPage::setupRelations() {
+  relations.clear();
+
+  // 二项分布 → 泊松分布
+  relations.append({&binomialBtnRect, &poissonBtnRect, "n→∞, p→0"});
+
+  // 二项分布 → 正态分布
+  relations.append(
+      {&binomialBtnRect, &normalBtnRect, "n足够大 (De Moivre-Laplace)"});
+
+  // 超几何分布 → 二项分布
+  relations.append(
+      {&hypergeometricBtnRect, &binomialBtnRect, "总体N极大，抽样比例极小"});
+
+  // 指数分布 → 伽马分布
+  relations.append(
+      {&exponentialBtnRect, &gammaBtnRect, "n个独立指数分布变量之和"});
+
+  // 指数分布 → 泊松分布
+  relations.append({&exponentialBtnRect, &poissonBtnRect,
+                    "指数分布是泊松过程中两次事件的时间间隔"});
+
+  // t分布 → F分布
+  relations.append({&studentTBtnRect, &fDistBtnRect, "t²(n)=F(1,n)"});
+
+  // 正态分布 → 卡方分布
+  relations.append({&normalBtnRect, &chiSquareBtnRect, "Z₁²+...+Zₖ²~χ²(k)"});
+
+  // 伽马分布 → 卡方分布
+  relations.append(
+      {&gammaBtnRect, &chiSquareBtnRect, "Gamma(α=n/2,β=1/2)=χ²(n)"});
+
+  // 伽马分布 → Beta分布
+  relations.append({&gammaBtnRect, &betaBtnRect, "X/(X+Y)~Beta(α,β)"});
+}
+
 void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
-                                  const QPoint &end, bool highlighted) {
+                                  const QPoint &end, const QString &text,
+                                  bool highlighted) {
   QPainterPath path;
   path.moveTo(start);
 
@@ -224,12 +236,87 @@ void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
   painter.drawPath(path);
 }
 
+void NetworkPage::drawRelationText(QPainter &painter, const QPoint &start,
+                                   const QPoint &end, const QString &text) {
+  if (text.isEmpty()) {
+    return;
+  }
+
+  QPoint controlPoint;
+  if (end.x() < start.x()) {
+    controlPoint =
+        QPoint((start.x() + end.x()) / 2 - 50, (start.y() + end.y()) / 2);
+  } else if (end.x() > start.x()) {
+    controlPoint =
+        QPoint((start.x() + end.x()) / 2 + 50, (start.y() + end.y()) / 2);
+  } else {
+    controlPoint =
+        QPoint((start.x() + end.x()) / 2, (start.y() + end.y()) / 2 - 50);
+  }
+
+  qreal t = 0.5;
+  qreal oneMinusT = 1.0 - t;
+  QPoint midPoint = oneMinusT * oneMinusT * start +
+                    2 * oneMinusT * t * controlPoint + t * t * end;
+
+  int fontSize = qMax(7, 11 - text.length() / 4);
+  QFont font("Arial", fontSize);
+  painter.setFont(font);
+  QFontMetrics fm(font);
+  QRect textRect = fm.boundingRect(text);
+  textRect.moveCenter(midPoint);
+  textRect.adjust(-6, -3, 6, 3);
+
+  QRect windowRect = painter.window();
+  textRect.moveLeft(qMax(textRect.left(), 10));
+  textRect.moveTop(qMax(textRect.top(), 10));
+  textRect.moveRight(qMin(textRect.right(), windowRect.width() - 10));
+  textRect.moveBottom(qMin(textRect.bottom(), windowRect.height() - 10));
+
+  painter.setBrush(QColor("#1E1E1E"));
+  painter.setPen(QPen(QColor("#00FFF2"), 1));
+  painter.drawRoundedRect(textRect, 4, 4);
+
+  painter.setPen(QColor("#00FFF2"));
+  painter.drawText(textRect, Qt::AlignCenter, text);
+}
+
 void NetworkPage::paintEvent(QPaintEvent *) {
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
 
-  QPoint center = normalBtnRect.center();
+  // 第一步：绘制所有分布关系曲线（不带文字）
+  for (const auto &relation : relations) {
+    QPoint sourceCenter = relation.sourceRect->center();
+    QPoint targetCenter = relation.targetRect->center();
 
+    bool highlighted = false;
+    QVector<QPushButton *> allButtons = {
+        ui->btnBinomial,       ui->btnPoisson,      ui->btnNormal,
+        ui->btnHypergeometric, ui->btnExponential,  ui->btnGamma,
+        ui->btnStudentT,       ui->btnFDistribution};
+
+    for (QPushButton *btn : allButtons) {
+      if (hoveredButton == btn) {
+        if ((btn->geometry() == *relation.sourceRect) ||
+            (btn->geometry() == *relation.targetRect)) {
+          highlighted = true;
+          break;
+        }
+      }
+    }
+
+    drawBezierCurve(painter, sourceCenter, targetCenter, "", highlighted);
+  }
+
+  // 第二步：绘制所有关系文字标签（在曲线上方）
+  for (const auto &relation : relations) {
+    QPoint sourceCenter = relation.sourceRect->center();
+    QPoint targetCenter = relation.targetRect->center();
+    drawRelationText(painter, sourceCenter, targetCenter, relation.condition);
+  }
+
+  // 第三步：绘制节点圆点（在最上方）
   QVector<QPair<QPushButton *, QRect>> nodes = {
       {ui->btnBinomial, binomialBtnRect},
       {ui->btnPoisson, poissonBtnRect},
@@ -241,20 +328,8 @@ void NetworkPage::paintEvent(QPaintEvent *) {
       {ui->btnGeometric, geometricBtnRect},
       {ui->btnHypergeometric, hypergeometricBtnRect},
       {ui->btnFDistribution, fDistBtnRect},
-      {ui->btnGamma, gammaBtnRect}};
-
-  for (const auto &pair : nodes) {
-    QPoint nodeCenter = pair.second.center();
-    bool highlighted = (hoveredButton == pair.first);
-    drawBezierCurve(painter, center, nodeCenter, highlighted);
-  }
-
-  QRadialGradient centerGradient(center, 10);
-  centerGradient.setColorAt(0, QColor("#00FFFF"));
-  centerGradient.setColorAt(1, QColor("#00FFF2"));
-  painter.setBrush(QBrush(centerGradient));
-  painter.setPen(Qt::NoPen);
-  painter.drawEllipse(center, 6, 6);
+      {ui->btnGamma, gammaBtnRect},
+      {ui->btnNormal, normalBtnRect}};
 
   for (const auto &pair : nodes) {
     QPoint nodeCenter = pair.second.center();
@@ -275,6 +350,7 @@ void NetworkPage::paintEvent(QPaintEvent *) {
 
 void NetworkPage::resizeEvent(QResizeEvent *) {
   updateButtonPositions();
+  setupRelations();
   update();
 }
 
