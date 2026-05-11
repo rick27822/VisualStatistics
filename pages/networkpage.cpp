@@ -5,7 +5,9 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QRandomGenerator>
 #include <QResizeEvent>
+#include <QShowEvent>
 
 NetworkPage::NetworkPage(QWidget *parent)
     : QWidget(parent), ui(new Ui::NetworkPage), hoveredButton(nullptr) {
@@ -14,13 +16,23 @@ NetworkPage::NetworkPage(QWidget *parent)
   setupNodes();
   updateButtonPositions();
   setupRelations();
+
+  animationTimer = new QTimer(this);
+  connect(animationTimer, &QTimer::timeout, this,
+          &NetworkPage::updateParticles);
+  animationTimer->start(50);
+}
+
+void NetworkPage::showEvent(QShowEvent *event) {
+  QWidget::showEvent(event);
+  initParticles();
 }
 
 void NetworkPage::setupBackButton() {
   connect(ui->btnBack, &QPushButton::clicked, [=]() { emit backToHome(); });
   ui->btnBack->setStyleSheet(
-      "QPushButton { background-color: #2D2D2D; color: #00FFF2; "
-      "border: 1px solid #00FFF2; border-radius: 5px; padding: 5px 10px; }"
+      "QPushButton { background-color: #2D2D2D; color: #00FFF2; border: 1px "
+      "solid #00FFF2; border-radius: 5px; padding: 5px 10px; } "
       "QPushButton:hover { background-color: #00FFF2; color: #121212; }");
 }
 
@@ -91,6 +103,7 @@ void NetworkPage::setupNodes() {
                             "} "
                             "QPushButton:hover { "
                             "border-color: #00FFFF; "
+                            "background-color: #2A2A2A; "
                             "}";
   ui->btnNormal->setStyleSheet(centerNodeStyle);
 
@@ -259,7 +272,7 @@ void NetworkPage::drawRelationText(QPainter &painter, const QPoint &start,
   QPoint midPoint = oneMinusT * oneMinusT * start +
                     2 * oneMinusT * t * controlPoint + t * t * end;
 
-  int fontSize = qMax(7, 11 - text.length() / 4);
+  int fontSize = qMax(9, 12 - text.length() / 4);
   QFont font("Arial", fontSize);
   painter.setFont(font);
   QFontMetrics fm(font);
@@ -284,6 +297,8 @@ void NetworkPage::drawRelationText(QPainter &painter, const QPoint &start,
 void NetworkPage::paintEvent(QPaintEvent *) {
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
+
+  drawParticleGrid(painter);
 
   // 第一步：绘制所有分布关系曲线（不带文字）
   for (const auto &relation : relations) {
@@ -336,11 +351,11 @@ void NetworkPage::paintEvent(QPaintEvent *) {
     bool highlighted = (hoveredButton == pair.first);
 
     if (highlighted) {
-      QRadialGradient nodeGradient(nodeCenter, 5);
+      QRadialGradient nodeGradient(nodeCenter, 6);
       nodeGradient.setColorAt(0, QColor("#00FFFF"));
       nodeGradient.setColorAt(1, QColor("#00FFF2"));
       painter.setBrush(QBrush(nodeGradient));
-      painter.drawEllipse(nodeCenter, 5, 5);
+      painter.drawEllipse(nodeCenter, 6, 6);
     } else {
       painter.setBrush(QColor("#00FFF2"));
       painter.drawEllipse(nodeCenter, 4, 4);
@@ -351,6 +366,7 @@ void NetworkPage::paintEvent(QPaintEvent *) {
 void NetworkPage::resizeEvent(QResizeEvent *) {
   updateButtonPositions();
   setupRelations();
+  initParticles();
   update();
 }
 
@@ -378,6 +394,73 @@ void NetworkPage::mouseMoveEvent(QMouseEvent *event) {
 void NetworkPage::leaveEvent(QEvent *) {
   hoveredButton = nullptr;
   update();
+}
+
+void NetworkPage::initParticles() {
+  int numParticles = 120;
+  particles.clear();
+  particleConnections.clear();
+
+  auto *rng = QRandomGenerator::global();
+
+  for (int i = 0; i < numParticles; ++i) {
+    Particle p;
+    p.pos = QPointF(rng->bounded(width()), rng->bounded(height()));
+    p.velocity = QPointF((rng->bounded(100) - 50) / 200.0,
+                         (rng->bounded(100) - 50) / 200.0);
+    p.size = 2.0 + rng->bounded(15) / 10.0;
+    p.opacity = 0.2 + rng->bounded(40) / 100.0;
+    particles.append(p);
+  }
+
+  int numConnections = 100;
+  for (int i = 0; i < numConnections; ++i) {
+    int p1 = rng->bounded(numParticles);
+    int p2 = rng->bounded(numParticles);
+    if (p1 != p2) {
+      ParticleConnection conn;
+      conn.particle1 = p1;
+      conn.particle2 = p2;
+      conn.opacity = 0.1 + rng->bounded(30) / 100.0;
+      particleConnections.append(conn);
+    }
+  }
+}
+
+void NetworkPage::updateParticles() {
+  for (int i = 0; i < particles.size(); ++i) {
+    Particle &p = particles[i];
+    p.pos += p.velocity;
+
+    if (p.pos.x() < 0)
+      p.pos.setX(width());
+    if (p.pos.x() > width())
+      p.pos.setX(0);
+    if (p.pos.y() < 0)
+      p.pos.setY(height());
+    if (p.pos.y() > height())
+      p.pos.setY(0);
+  }
+  update();
+}
+
+void NetworkPage::drawParticleGrid(QPainter &painter) {
+  for (const auto &conn : particleConnections) {
+    const Particle &p1 = particles[conn.particle1];
+    const Particle &p2 = particles[conn.particle2];
+    QColor lineColor(0, 255, 242);
+    lineColor.setAlphaF(conn.opacity);
+    painter.setPen(QPen(lineColor, 0.8));
+    painter.drawLine(p1.pos, p2.pos);
+  }
+
+  for (const auto &p : particles) {
+    QColor particleColor(0, 255, 242);
+    particleColor.setAlphaF(p.opacity);
+    painter.setBrush(particleColor);
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(p.pos, p.size, p.size);
+  }
 }
 
 NetworkPage::~NetworkPage() { delete ui; }
