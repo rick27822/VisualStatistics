@@ -94,9 +94,11 @@ void DetailPage::updateRelatedDistributions() {
         content +=
             QString("<p><strong>%1</strong></p>").arg(relatedDist->getName());
         content += QString("<p>%1</p>").arg(related.relationDescription);
-        content += QString("<p><a href='dist://jump/%1' style='color: "
-                           "#00FFFF;'>[跳转]</a></p>")
-                       .arg(static_cast<int>(related.relatedType));
+        if (related.relatedType != m_dist->getType()) {
+          content += QString("<p><a href='dist://jump/%1' style='color: "
+                             "#00FFFF;'>[跳转]</a></p>")
+                         .arg(static_cast<int>(related.relatedType));
+        }
         content += "</div>";
         delete relatedDist;
       }
