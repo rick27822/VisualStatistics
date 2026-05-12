@@ -134,17 +134,17 @@ void WelcomePage::initUI() {
 void WelcomePage::spawnParticle() {
   Particle p;
   qreal mean = width() / 2.0;
-  qreal stdDev = width() / 6.0;
+  qreal stdDev = width() / 5.0;
 
   qreal u1 = m_random.generateDouble();
   qreal u2 = m_random.generateDouble();
   qreal z = sqrt(-2.0 * log(u1)) * cos(2.0 * M_PI * u2);
   p.x = mean + z * stdDev;
-  p.x = qBound(20.0, p.x, width() - 20.0);
+  p.x = qBound(10.0, p.x, width() - 10.0);
 
   p.y = -10;
-  p.speedY = 3.0 + m_random.generateDouble() * 4.0;
-  p.opacity = 0.15 + m_random.generateDouble() * 0.2;
+  p.speedY = 3.0 + m_random.generateDouble() * 3.0;
+  p.opacity = 0.12 + m_random.generateDouble() * 0.15;
   p.settled = false;
   p.binIndex = static_cast<int>((p.x / width()) * m_binCount);
   p.binIndex = qBound(0, p.binIndex, m_binCount - 1);
@@ -153,8 +153,8 @@ void WelcomePage::spawnParticle() {
 }
 
 void WelcomePage::updateParticles() {
-  for (int i = 0; i < 5; ++i) {
-    if (m_particles.size() < 5000) {
+  for (int i = 0; i < 6; ++i) {
+    if (m_particles.size() < 6000) {
       spawnParticle();
     }
   }
@@ -165,6 +165,9 @@ void WelcomePage::updateParticles() {
   qreal safeHeight = height() * 0.6;
   qreal maxBins = safeHeight / 4.0;
 
+  qreal mean = width() / 2.0;
+  qreal stdDev = width() / 5.0;
+
   for (int i = 0; i < m_particles.size(); ++i) {
     Particle &p = m_particles[i];
     if (!p.settled) {
@@ -173,12 +176,10 @@ void WelcomePage::updateParticles() {
       int bin = static_cast<int>(p.x / m_binWidth);
       bin = qBound(0, bin, m_binCount - 1);
 
-      qreal mean = width() / 2.0;
-      qreal stdDev = width() / 5.0;
       qreal binCenter = (bin + 0.5) * m_binWidth;
       qreal z = (binCenter - mean) / stdDev;
       qreal gaussian = exp(-0.5 * z * z);
-      qreal effectiveMaxBins = maxBins * (0.3 + 0.7 * gaussian);
+      qreal effectiveMaxBins = maxBins * gaussian;
 
       if (m_bins[bin] >= effectiveMaxBins) {
         m_particles.remove(i);
@@ -278,7 +279,7 @@ void WelcomePage::paintEvent(QPaintEvent *event) {
 
       qreal h = m_bins[i] * 4.0;
 
-      qreal effectiveMaxHeight = safeHeight * (0.3 + 0.7 * gaussian);
+      qreal effectiveMaxHeight = safeHeight * gaussian;
       h = qMin(h, effectiveMaxHeight);
 
       if (h > 0) {
