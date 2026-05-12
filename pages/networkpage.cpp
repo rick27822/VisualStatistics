@@ -144,7 +144,7 @@ void NetworkPage::updateButtonPositions() {
   poissonBtnRect = QRect(centerX - 120, centerY - 350, nodeWidth, nodeHeight);
   ui->btnPoisson->setGeometry(poissonBtnRect);
 
-  uniformBtnRect = QRect(centerX - 400, centerY - 280, nodeWidth, nodeHeight);
+  uniformBtnRect = QRect(centerX + 280, centerY - 280, nodeWidth, nodeHeight);
   ui->btnUniform->setGeometry(uniformBtnRect);
 
   exponentialBtnRect =
@@ -165,7 +165,7 @@ void NetworkPage::updateButtonPositions() {
 
   int hypergeometricWidth = 170;
   hypergeometricBtnRect =
-      QRect(centerX + 220, centerY - 380, hypergeometricWidth, nodeHeight);
+      QRect(centerX - 500, centerY - 250, hypergeometricWidth, nodeHeight);
   ui->btnHypergeometric->setGeometry(hypergeometricBtnRect);
 
   fDistBtnRect = QRect(centerX - 400, centerY + 330, nodeWidth, nodeHeight);
@@ -220,29 +220,11 @@ void NetworkPage::setupRelations() {
 
 void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
                                   const QPoint &end, const QString &text,
-                                  bool) {
-  QPainterPath path;
-  path.moveTo(start);
-
-  QPoint controlPoint;
-  if (end.x() < start.x()) {
-    controlPoint =
-        QPoint((start.x() + end.x()) / 2 - 50, (start.y() + end.y()) / 2);
-  } else if (end.x() > start.x()) {
-    controlPoint =
-        QPoint((start.x() + end.x()) / 2 + 50, (start.y() + end.y()) / 2);
-  } else {
-    controlPoint =
-        QPoint((start.x() + end.x()) / 2, (start.y() + end.y()) / 2 - 50);
-  }
-
-  path.quadTo(controlPoint, end);
-
-  int lineWidth = 1;
-
-  painter.setPen(QPen(QColor("#00FFF2"), lineWidth, Qt::SolidLine));
-
-  painter.drawPath(path);
+                                  bool highlighted) {
+  QColor lineColor(0, 255, 242);
+  lineColor.setAlphaF(highlighted ? 1 : 0.8);
+  painter.setPen(QPen(lineColor, highlighted ? 6.0 : 5));
+  painter.drawLine(start, end);
 }
 
 void NetworkPage::drawRelationText(QPainter &painter, const QPoint &start,
