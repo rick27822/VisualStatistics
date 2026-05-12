@@ -10,7 +10,7 @@ using namespace std;
 enum class DistType {
   Normal,
   Binomial,
-  Poission,
+  Poisson,
   Uniform,
   Exponential,
   StudentT,
@@ -191,7 +191,7 @@ public:
   QString getParam1Name() const override { return "均值 (λ)"; }
   QString getParam2Name() const override { return ""; }
   QString getName() const override { return "泊松分布"; }
-  DistType getType() const override { return DistType::Poission; }
+  DistType getType() const override { return DistType::Poisson; }
   DistributionCategory getCategory() const override {
     return DistributionCategory::Discrete;
   }
@@ -538,7 +538,8 @@ public:
            "<b>参数影响：</b><br/>"
            "• "
            "<b>α（形状参数）</"
-           "b>：α增大，分布峰值向右移动；当α&lt;1且β≥1时，分布下凹；当α&gt;"
+           "b>：α增大，分布峰值向右移动；当α&lt;1且β≥1时，分布在x="
+           "0处有峰值（J形）；当α&gt;"
            "1时，分布开始变得对称。<br/>"
            "• "
            "<b>β（形状参数）</"
@@ -663,7 +664,6 @@ public:
   void setParameters(double p1, double p2) override {
     m_N = std::max(1, (int)p1);
     m_K = std::clamp((int)p2, 0, m_N);
-    m_n = std::max(1, m_N / 2);
   }
   int getN() const { return m_N; }
   int getK() const { return m_K; }
@@ -760,7 +760,7 @@ public:
            "b>：df₁越大，F分布的峰值越靠左，分布越集中。<br/>"
            "• "
            "<b>df₂（分母自由度）</"
-           "b>：df₂越大，F分布的尾部越薄，分布越近似正态分布。";
+           "b>：df₂越大，F分布的尾部越薄，分布越集中。F分布始终为正偏分布。";
   }
   QString getUsageScenario() const override {
     return "<b>典型案例：农业试验中的小麦品种产量比较</b><br/><br/>"
@@ -875,7 +875,7 @@ struct DistFactory {
       return new NormalDistribution(0.0, 1.0);
     case DistType::Binomial:
       return new BinomialDistribution(10, 0.5);
-    case DistType::Poission:
+    case DistType::Poisson:
       return new PoissonDistribution(5.0);
     case DistType::Uniform:
       return new UniformDistribution(0.0, 1.0);
@@ -906,16 +906,15 @@ struct DistFactory {
     case DistType::Normal:
       relations.append(
           {DistType::Binomial,
-           "二项分布在n很大时（De Moivre-Laplace定理，近似为正态分布"});
+           "二项分布在n很大时（De Moivre-Laplace定理）近似为正态分布"});
       relations.append(
           {DistType::ChiSquare, "卡方分布由独立标准正态变量平方和构成"});
       relations.append({DistType::StudentT, "t分布在自由度很大时近似正态分布"});
       break;
     case DistType::Binomial:
       relations.append({DistType::Normal,
-                        "n很大p适中时（De Moivre-Laplace定理，近似为正态分布"});
-      relations.append(
-          {DistType::Poission, "n→∞，p→0且np=λ时，近似为泊松分布"});
+                        "n很大p适中时（De Moivre-Laplace定理）近似为正态分布"});
+      relations.append({DistType::Poisson, "n→∞，p→0且np=λ时，近似为泊松分布"});
       relations.append(
           {DistType::Hypergeometric, "总体N很大时，超几何分布近似为二项分布"});
       break;
@@ -925,7 +924,7 @@ struct DistFactory {
            "通过逆变换采样(Inverse Transform "
            "Sampling)，均匀分布可以生成任何分布。这是计算机模拟的核心。"});
       break;
-    case DistType::Poission:
+    case DistType::Poisson:
       relations.append({DistType::Binomial, "二项分布在n→∞，p→0时的极限"});
       relations.append(
           {DistType::Exponential, "指数分布描述泊松过程中事件间隔时间"});
@@ -933,7 +932,7 @@ struct DistFactory {
       break;
     case DistType::Exponential:
       relations.append(
-          {DistType::Poission, "指数分布是泊松过程中两次事件的时间间隔"});
+          {DistType::Poisson, "指数分布是泊松过程中两次事件的时间间隔"});
       relations.append({DistType::Gamma, "n个独立指数变量之和服从伽马分布"});
       break;
     case DistType::StudentT:

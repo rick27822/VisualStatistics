@@ -62,7 +62,7 @@ void NetworkPage::setupNodes() {
           [=]() { emit distSelected(DistType::Binomial); });
 
   connect(ui->btnPoisson, &QPushButton::clicked,
-          [=]() { emit distSelected(DistType::Poission); });
+          [=]() { emit distSelected(DistType::Poisson); });
 
   connect(ui->btnUniform, &QPushButton::clicked,
           [=]() { emit distSelected(DistType::Uniform); });

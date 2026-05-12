@@ -379,9 +379,12 @@ double FDistribution::calculateCDF(double x) const {
 
 QPair<double, double> FDistribution::getSuggestedRange() const {
   // F 分布的建议范围
-  double mode = (m_df1 - 2.0) * m_df2 / (m_df1 * (m_df2 + 2.0));
-  if (mode <= 0)
-    mode = 1.0;
+  double mode;
+  if (m_df1 > 2.0) {
+    mode = (m_df1 - 2.0) * m_df2 / (m_df1 * (m_df2 + 2.0));
+  } else {
+    mode = 0.5;
+  }
   double max_x = mode + 3.0 * (1.0 + m_df1 / m_df2);
   return qMakePair(-0.1, max_x + 2.0);
 }
