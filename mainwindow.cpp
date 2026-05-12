@@ -31,7 +31,7 @@ void MainWindow::setupConnections() {
 
     // 关系网 -> 详情页
     connect(m_networkPage, &NetworkPage::distSelected, [=](DistType type){
-        m_detailPage->setDistribution(DistFactory::create(type));
+        m_detailPage->setDistribution(DistFactory::createUnique(type));
         m_stack->setCurrentIndex(2);
     });
 
@@ -41,7 +41,7 @@ void MainWindow::setupConnections() {
     });
     // 详情页 -> 其他分布详情页 (跳转)
     connect(m_detailPage, &DetailPage::jumpToDistribution, [=](DistType type){
-        m_detailPage->setDistribution(DistFactory::create(type));
+        m_detailPage->setDistribution(DistFactory::createUnique(type));
     });
 
     // 关系网 -> 首页 (返回)

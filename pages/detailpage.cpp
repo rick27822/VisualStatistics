@@ -49,8 +49,8 @@ void DetailPage::setupInitialStyle() {
   ui->textBrowser_2->setStyleSheet(browserStyle);
   ui->textBrowser_2->setTextInteractionFlags(Qt::TextBrowserInteraction);
 }
-void DetailPage::setDistribution(BaseDistribution *dist) {
-  m_dist = dist;
+void DetailPage::setDistribution(std::unique_ptr<BaseDistribution> dist) {
+  m_dist = std::move(dist);
   if (m_dist) {
     ui->labelTitle->setText(m_dist->getName());
     setupSliderRanges();
@@ -106,7 +106,7 @@ void DetailPage::updateRelatedDistributions() {
     content += "<p>暂无相关分布信息</p>";
   } else {
     for (const auto &related : relations) {
-      BaseDistribution *relatedDist = DistFactory::create(related.relatedType);
+      auto relatedDist = DistFactory::createUnique(related.relatedType);
       if (relatedDist) {
         content += QString("<div style='margin: 10px 0; padding: 8px; border: "
                            "1px solid #00FFF2; border-radius: 5px;'>");
@@ -119,7 +119,6 @@ void DetailPage::updateRelatedDistributions() {
                          .arg(static_cast<int>(related.relatedType));
         }
         content += "</div>";
-        delete relatedDist;
       }
     }
   }
@@ -263,7 +262,7 @@ void DetailPage::onParameterChanged() {
   double p2 = params.size() >= 2 ? params[1] : 0.0;
 
   if (m_dist->getType() == DistType::Hypergeometric) {
-    auto hyper = dynamic_cast<HypergeometricDistribution *>(m_dist);
+    auto hyper = dynamic_cast<HypergeometricDistribution *>(m_dist.get());
     if (hyper && params.size() >= 3) {
       hyper->setParameters(p1, p2);
       hyper->setN(static_cast<int>(p1));

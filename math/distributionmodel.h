@@ -4,6 +4,7 @@
 #include <QList>
 #include <QPair>
 #include <QString>
+#include <memory>
 
 using namespace std;
 
@@ -898,6 +899,10 @@ struct DistFactory {
     default:
       return new NormalDistribution(0.0, 1.0);
     }
+  }
+
+  static unique_ptr<BaseDistribution> createUnique(DistType type) {
+    return unique_ptr<BaseDistribution>(create(type));
   }
 
   static QList<RelatedDistribution> getRelatedDistributions(DistType type) {

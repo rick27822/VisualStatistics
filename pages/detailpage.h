@@ -5,6 +5,7 @@
 #include "../qcustomplot.h"
 #include <QWidget>
 #include <QWebEngineView>
+#include <memory>
 
 namespace Ui {
 class DetailPage;
@@ -17,7 +18,7 @@ public:
   enum class RenderMode { PMF, CDF };
   explicit DetailPage(QWidget *parent = nullptr);
   ~DetailPage();
-  void setDistribution(BaseDistribution *dist);
+  void setDistribution(std::unique_ptr<BaseDistribution> dist);
 signals:
   void backRequested();
   void jumpToDistribution(DistType type);
@@ -29,9 +30,8 @@ private slots:
 
 private:
   Ui::DetailPage *ui;
-  BaseDistribution *m_dist = nullptr;
+  std::unique_ptr<BaseDistribution> m_dist;
   RenderMode m_mode = RenderMode::PMF;
-  void setupPlot();
   void setupInitialStyle();
   void setupSliderRanges();
   void updatePlot();
