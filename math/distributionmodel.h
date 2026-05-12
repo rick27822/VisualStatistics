@@ -112,7 +112,8 @@ public:
            "格率，优化生产流程。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = (1/(σ√(2π))) * exp(-(x-μ)²/(2σ²))";
+    return "\\( f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} "
+           "e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}} \\)";
   }
 };
 class BinomialDistribution : public BaseDistribution {
@@ -174,7 +175,7 @@ public:
            "果，做出科学决策。";
   }
   QString getFunctionExpression() const override {
-    return "P(X=k) = C(n,k) * p^k * (1-p)^(n-k)";
+    return "\\( P(X=k) = \\binom{n}{k} p^k (1-p)^{n-k} \\)";
   }
 };
 
@@ -236,7 +237,7 @@ public:
            "服务水平。";
   }
   QString getFunctionExpression() const override {
-    return "P(X=k) = (e^(-λ) * λ^k) / k!";
+    return "\\( P(X=k) = \\frac{e^{-\\lambda} \\lambda^k}{k!} \\)";
   }
 };
 
@@ -305,7 +306,7 @@ public:
            "均匀分布因其简单性，成为蒙特卡洛模拟中最基础的工具之一。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = 1/(b-a), a ≤ x ≤ b";
+    return "\\( f(x) = \\frac{1}{b-a}, \\quad a \\leq x \\leq b \\)";
   }
 };
 
@@ -367,7 +368,7 @@ public:
            "这使得指数分布在可靠性工程和排队论中广泛应用。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = λ * e^(-λx), x ≥ 0";
+    return "\\( f(x) = \\lambda e^{-\\lambda x}, \\quad x \\geq 0 \\)";
   }
 };
 
@@ -429,7 +430,10 @@ public:
            "回归分析中参数的显著性检验等领域都有广泛应用。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = Γ((df+1)/2) / (√(dfπ) * Γ(df/2)) * (1+x²/df)^(-(df+1)/2)";
+    return "\\( f(x) = "
+           "\\frac{\\Gamma\\left(\\frac{df+1}{2}\\right)}{\\sqrt{df\\pi} "
+           "\\Gamma\\left(\\frac{df}{2}\\right)} "
+           "\\left(1+\\frac{x^2}{df}\\right)^{-\\frac{df+1}{2}} \\)";
   }
 };
 
@@ -492,7 +496,9 @@ public:
            "卡方分布在社会学、医学、市场研究等领域都有广泛应用。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = x^(df/2-1) * e^(-x/2) / (2^(df/2) * Γ(df/2))";
+    return "\\( f(x) = \\frac{x^{\\frac{df}{2}-1} "
+           "e^{-\\frac{x}{2}}}{2^{\\frac{df}{2}} "
+           "\\Gamma\\left(\\frac{df}{2}\\right)} \\)";
   }
 };
 
@@ -567,7 +573,8 @@ public:
            "计。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = x^(α-1) * (1-x)^(β-1) / B(α,β)";
+    return "\\( f(x) = \\frac{x^{\\alpha-1} "
+           "(1-x)^{\\beta-1}}{B(\\alpha,\\beta)} \\)";
   }
 };
 
@@ -630,7 +637,7 @@ public:
            "费玩家的利益，优化游戏经济系统。";
   }
   QString getFunctionExpression() const override {
-    return "P(X=k) = (1-p)^(k-1) * p";
+    return "\\( P(X=k) = (1-p)^{k-1} p \\)";
   }
 };
 
@@ -709,7 +716,8 @@ public:
            "。";
   }
   QString getFunctionExpression() const override {
-    return "P(X=k) = C(K,k) * C(N-K,n-k) / C(N,n)";
+    return "\\( P(X=k) = \\frac{\\binom{K}{k} "
+           "\\binom{N-K}{n-k}}{\\binom{N}{n}} \\)";
   }
 };
 
@@ -775,8 +783,12 @@ public:
            "是统计推断中非常重要的工具。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = Γ((df₁+df₂)/2) * (df₁/df₂)^(df₁/2) * x^(df₁/2-1) / ( "
-           "Γ(df₁/2) * Γ(df₂/2) * (1 + (df₁/df₂)x)^((df₁+df₂)/2))";
+    return "\\( f(x) = "
+           "\\frac{\\Gamma\\left(\\frac{df_1+df_2}{2}\\right)}{\\Gamma\\left("
+           "\\frac{df_1}{2}\\right) \\Gamma\\left(\\frac{df_2}{2}\\right)} "
+           "\\left(\\frac{df_1}{df_2}\\right)^{\\frac{df_1}{2}} "
+           "\\frac{x^{\\frac{df_1}{2}-1}}{\\left(1 + "
+           "\\frac{df_1}{df_2}x\\right)^{\\frac{df_1+df_2}{2}}} \\)";
   }
 };
 
@@ -846,7 +858,8 @@ public:
            "间）、贝叶斯统计（指数分布的共轭先验）等领域。";
   }
   QString getFunctionExpression() const override {
-    return "f(x) = (β^α / Γ(α)) * x^(α-1) * e^(-βx), x ≥ 0";
+    return "\\( f(x) = \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} x^{\\alpha-1} "
+           "e^{-\\beta x}, \\quad x \\geq 0 \\)";
   }
 };
 

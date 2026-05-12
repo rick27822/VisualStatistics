@@ -4,6 +4,7 @@
 #include "../math/distributionmodel.h"
 #include "../qcustomplot.h"
 #include <QWidget>
+#include <QWebEngineView>
 
 namespace Ui {
 class DetailPage;

@@ -40,13 +40,13 @@ void DetailPage::setupInitialStyle() {
   // 隐藏不必要的边框线，增加呼吸感
   ui->customPlot->axisRect()->setupFullAxesBox(false);
 
-  // 设置 textBrowser 样式
+  // 设置 webView 背景
+  ui->webView->setStyleSheet("background-color: #121212;");
+
+  // 设置 textBrowser_2 样式
   QString browserStyle = "QTextBrowser { background-color: #121212; color: "
                          "#E0E0E0; border: none; }";
-  ui->textBrowser->setStyleSheet(browserStyle);
   ui->textBrowser_2->setStyleSheet(browserStyle);
-
-  // 设置 textBrowser_2 的交互标志，使链接可以点击
   ui->textBrowser_2->setTextInteractionFlags(Qt::TextBrowserInteraction);
 }
 void DetailPage::setDistribution(BaseDistribution *dist) {
@@ -61,14 +61,33 @@ void DetailPage::setDistribution(BaseDistribution *dist) {
 void DetailPage::updateDescription() {
   if (!m_dist)
     return;
-  QString content = QString("<h3>%1</h3>").arg(m_dist->getName()) +
-                    QString("<p><strong>函数表达式：</strong>%1</p>")
-                        .arg(m_dist->getFunctionExpression()) +
-                    QString("<p><strong>参数意义：</strong>%1</p>")
-                        .arg(m_dist->getDescription()) +
-                    QString("<p><strong>使用场景：</strong>%1</p>")
-                        .arg(m_dist->getUsageScenario());
-  ui->textBrowser->setHtml(content);
+  QString content =
+      QString("<html><head><meta charset='UTF-8'><script "
+              "src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/"
+              "tex-mml-chtml.js' id='MathJax-script' async></script><script>"
+              "MathJax = { tex: { inlineMath: [['\\\\(', '\\\\)']] }, "
+              "svg: { fontCache: 'global' } };</script><style>"
+              "body { background-color: #121212; color: #E0E0E0; "
+              "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', "
+              "Roboto, sans-serif; padding: 10px; margin: 0; }"
+              "h3 { color: #00FFF2; margin-bottom: 15px; }"
+              "strong { color: #00D4FF; }"
+              ".formula-box { background: #1a1a2e; padding: 12px 15px; "
+              "border-radius: 6px; border-left: 3px solid #00FFF2; "
+              "font-size: 18px; line-height: 1.8; margin: 10px 0; "
+              "text-align: center; }"
+              "p { margin: 10px 0; line-height: 1.6; }"
+              "</style></head><body>") +
+      QString("<h3>%1</h3>").arg(m_dist->getName()) +
+      QString("<p><strong>函数表达式：</strong></p>") +
+      QString("<div class='formula-box'>%1</div>")
+          .arg(m_dist->getFunctionExpression()) +
+      QString("<p><strong>参数意义：</strong>%1</p>")
+          .arg(m_dist->getDescription()) +
+      QString("<p><strong>使用场景：</strong>%1</p>")
+          .arg(m_dist->getUsageScenario()) +
+      QString("</body></html>");
+  ui->webView->setHtml(content);
   updateRelatedDistributions();
 }
 
