@@ -141,26 +141,26 @@ void NetworkPage::updateButtonPositions() {
   binomialBtnRect = QRect(centerX - 380, centerY - 100, nodeWidth, nodeHeight);
   ui->btnBinomial->setGeometry(binomialBtnRect);
 
-  poissonBtnRect = QRect(centerX - 120, centerY - 300, nodeWidth, nodeHeight);
+  poissonBtnRect = QRect(centerX - 120, centerY - 350, nodeWidth, nodeHeight);
   ui->btnPoisson->setGeometry(poissonBtnRect);
 
-  uniformBtnRect = QRect(centerX + 300, centerY - 280, nodeWidth, nodeHeight);
+  uniformBtnRect = QRect(centerX - 400, centerY - 280, nodeWidth, nodeHeight);
   ui->btnUniform->setGeometry(uniformBtnRect);
 
   exponentialBtnRect =
-      QRect(centerX + 400, centerY - 80, nodeWidth, nodeHeight);
+      QRect(centerX + 380, centerY - 80, nodeWidth, nodeHeight);
   ui->btnExponential->setGeometry(exponentialBtnRect);
 
-  studentTBtnRect = QRect(centerX - 380, centerY + 220, nodeWidth, nodeHeight);
+  studentTBtnRect = QRect(centerX - 600, centerY + 200, nodeWidth, nodeHeight);
   ui->btnStudentT->setGeometry(studentTBtnRect);
 
-  chiSquareBtnRect = QRect(centerX - 450, centerY + 50, nodeWidth, nodeHeight);
+  chiSquareBtnRect = QRect(centerX - 480, centerY + 80, nodeWidth, nodeHeight);
   ui->btnChiSquare->setGeometry(chiSquareBtnRect);
 
-  betaBtnRect = QRect(centerX + 380, centerY + 250, nodeWidth, nodeHeight);
+  betaBtnRect = QRect(centerX - 200, centerY + 250, nodeWidth, nodeHeight);
   ui->btnBeta->setGeometry(betaBtnRect);
 
-  geometricBtnRect = QRect(centerX + 80, centerY + 340, nodeWidth, nodeHeight);
+  geometricBtnRect = QRect(centerX + 300, centerY + 280, nodeWidth, nodeHeight);
   ui->btnGeometric->setGeometry(geometricBtnRect);
 
   int hypergeometricWidth = 170;
@@ -168,10 +168,10 @@ void NetworkPage::updateButtonPositions() {
       QRect(centerX + 220, centerY - 380, hypergeometricWidth, nodeHeight);
   ui->btnHypergeometric->setGeometry(hypergeometricBtnRect);
 
-  fDistBtnRect = QRect(centerX - 250, centerY + 380, nodeWidth, nodeHeight);
+  fDistBtnRect = QRect(centerX - 400, centerY + 330, nodeWidth, nodeHeight);
   ui->btnFDistribution->setGeometry(fDistBtnRect);
 
-  gammaBtnRect = QRect(centerX + 250, centerY + 120, nodeWidth, nodeHeight);
+  gammaBtnRect = QRect(centerX + 150, centerY + 150, nodeWidth, nodeHeight);
   ui->btnGamma->setGeometry(gammaBtnRect);
 }
 
@@ -209,11 +209,18 @@ void NetworkPage::setupRelations() {
 
   // 伽马分布 → Beta分布
   relations.append({&gammaBtnRect, &betaBtnRect, "X/(X+Y)~Beta(α,β)"});
+
+  // Gamma ↔ Poisson
+  relations.append({&gammaBtnRect, &poissonBtnRect, "Γ↔P:时间-次数"});
+
+  // Geometric → Exponential
+  relations.append(
+      {&geometricBtnRect, &exponentialBtnRect, "几何→指数:间隔→0"});
 }
 
 void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
                                   const QPoint &end, const QString &text,
-                                  bool highlighted) {
+                                  bool) {
   QPainterPath path;
   path.moveTo(start);
 
@@ -231,20 +238,9 @@ void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
 
   path.quadTo(controlPoint, end);
 
-  int lineWidth = highlighted ? 4 : 2;
+  int lineWidth = 1;
 
-  if (highlighted) {
-    QLinearGradient gradient(start, end);
-    gradient.setColorAt(0, QColor("#00FFF2"));
-    gradient.setColorAt(0.5, QColor("#00FFFF"));
-    gradient.setColorAt(1, QColor("#00FFF2"));
-    painter.setPen(QPen(QBrush(gradient), lineWidth, Qt::SolidLine));
-  } else {
-    QLinearGradient gradient(start, end);
-    gradient.setColorAt(0, QColor("#00FFF2"));
-    gradient.setColorAt(1, QColor("#006666"));
-    painter.setPen(QPen(QBrush(gradient), lineWidth, Qt::SolidLine));
-  }
+  painter.setPen(QPen(QColor("#00FFF2"), lineWidth, Qt::SolidLine));
 
   painter.drawPath(path);
 }
@@ -307,9 +303,9 @@ void NetworkPage::paintEvent(QPaintEvent *) {
 
     bool highlighted = false;
     QVector<QPushButton *> allButtons = {
-        ui->btnBinomial,       ui->btnPoisson,      ui->btnNormal,
-        ui->btnHypergeometric, ui->btnExponential,  ui->btnGamma,
-        ui->btnStudentT,       ui->btnFDistribution};
+        ui->btnBinomial,       ui->btnPoisson,       ui->btnNormal,
+        ui->btnHypergeometric, ui->btnExponential,   ui->btnGamma,
+        ui->btnStudentT,       ui->btnFDistribution, ui->btnGeometric};
 
     for (QPushButton *btn : allButtons) {
       if (hoveredButton == btn) {
