@@ -1,0 +1,77 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.5.0'
+        host: 'mac'
+        target: 'desktop'
+        modules: 'qtwebengine'
+    
+    - name: Build
+      run: |
+        mkdir -p build
+        cd build
+        qmake ../VisualStatistics.pro
+        make -j4
+    
+    - name: Deploy
+      run: |
+        macdeployqt build/VisualStatistics.app -dmg
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VisualStatistics-macos
+        path: build/VisualStatistics.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.5.0'
+        host: 'windows'
+        target: 'desktop'
+        modules: 'qtwebengine'
+    
+    - name: Build
+      run: |
+        mkdir -p build
+        cd build
+        qmake ..\VisualStatistics.pro
+        nmake
+    
+    - name: Deploy
+      run: |
+        cd build
+        windeployqt VisualStatistics.exe --release
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VisualStatistics-windows
+        path: |
+          build/VisualStatistics.exe
+          build/*.dll
+          build/platforms/
+          build/imageformats/
+          build/styles/
+          build/iconengines/
+          build/tls/
+          build/networkinformation/
