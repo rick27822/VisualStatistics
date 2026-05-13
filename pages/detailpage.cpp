@@ -261,15 +261,21 @@ void DetailPage::onParameterChanged() {
   double p1 = params.size() >= 1 ? params[0] : 0.0;
   double p2 = params.size() >= 2 ? params[1] : 0.0;
 
+  if (!m_dist) {
+    return;
+  }
+
   if (m_dist->getType() == DistType::Hypergeometric) {
     auto hyper = dynamic_cast<HypergeometricDistribution *>(m_dist.get());
-    if (hyper && params.size() >= 3) {
-      hyper->setParameters(p1, p2);
-      hyper->setN(static_cast<int>(p1));
-      hyper->setK(static_cast<int>(p2));
-      hyper->setn(static_cast<int>(params[2]));
-    } else {
-      m_dist->setParameters(p1, p2);
+    if (hyper) {
+      if (params.size() >= 3) {
+        hyper->setN(static_cast<int>(params[0]));
+        hyper->setK(static_cast<int>(params[1]));
+        hyper->setn(static_cast<int>(params[2]));
+      } else if (params.size() >= 2) {
+        hyper->setN(static_cast<int>(params[0]));
+        hyper->setK(static_cast<int>(params[1]));
+      }
     }
   } else {
     m_dist->setParameters(p1, p2);

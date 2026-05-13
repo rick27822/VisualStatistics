@@ -221,6 +221,7 @@ void NetworkPage::setupRelations() {
 void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
                                   const QPoint &end, const QString &text,
                                   bool highlighted) {
+  Q_UNUSED(text);
   QColor lineColor(0, 255, 242);
   lineColor.setAlphaF(highlighted ? 1 : 0.8);
   painter.setPen(QPen(lineColor, highlighted ? 6.0 : 5));

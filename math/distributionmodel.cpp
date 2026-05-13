@@ -272,7 +272,7 @@ double GeometricDistribution::calculate(double x) const {
   if (k < 1)
     return 0.0;
   if (m_p <= 0)
-    return (k == 1) ? 1.0 : 0.0;
+    return 0.0;
   if (m_p >= 1)
     return (k == 1) ? 1.0 : 0.0;
 
@@ -283,6 +283,8 @@ double GeometricDistribution::calculateCDF(double x) const {
   int k_max = std::floor(x);
   if (k_max < 1)
     return 0.0;
+  if (m_p >= 1)
+    return 1.0;
   return 1.0 - std::pow(1.0 - m_p, k_max);
 }
 
@@ -293,15 +295,11 @@ QPair<double, double> GeometricDistribution::getSuggestedRange() const {
 
 double HypergeometricDistribution::calculate(double x) const {
   int k = std::round(x);
-  if (k < 0 || k > m_n)
-    return 0.0;
-  if (k > m_K)
-    return 0.0;
-  if (m_n - k > m_N - m_K)
+  int k_min = std::max(0, m_n - (m_N - m_K));
+  int k_max = std::min(m_n, m_K);
+  if (k < k_min || k > k_max)
     return 0.0;
 
-  double logCombNK =
-      std::lgamma(m_N + 1) - std::lgamma(m_K + 1) - std::lgamma(m_N - m_K + 1);
   double logCombKk =
       std::lgamma(m_K + 1) - std::lgamma(k + 1) - std::lgamma(m_K - k + 1);
   double logCombNKnmk = std::lgamma(m_N - m_K + 1) - std::lgamma(m_n - k + 1) -
@@ -321,8 +319,14 @@ double HypergeometricDistribution::calculateCDF(double x) const {
   if (k_max >= m_n)
     return 1.0;
 
+  int k_min = std::max(0, m_n - (m_N - m_K));
+  k_max = std::min(k_max, m_K);
+
+  if (k_max < k_min)
+    return 0.0;
+
   double sum = 0.0;
-  for (int i = 0; i <= k_max; ++i) {
+  for (int i = k_min; i <= k_max; ++i) {
     sum += calculate(static_cast<double>(i));
   }
   return std::min(1.0, sum);
@@ -355,9 +359,6 @@ double FDistribution::calculate(double x) const {
 double FDistribution::calculateCDF(double x) const {
   if (x <= 0)
     return 0.0;
-
-  double df1 = m_df1;
-  double df2 = m_df2;
 
   // 使用数值积分计算 F 分布的 CDF
   const int steps = 10000;

@@ -538,13 +538,11 @@ public:
            "控制分布的形态。<br/><br/>"
            "<b>参数影响：</b><br/>"
            "• "
-           "<b>α（形状参数）</"
-           "b>：α增大，分布峰值向右移动；当α&lt;1且β≥1时，分布在x="
-           "0处有峰值（J形）；当α&gt;"
+           "<b>α（形状参数）</b>：α增大，分布峰值向右移动；当α&lt;1且β&gt;1时，"
+           "分布在x=0处有峰值（J形）；当α&gt;"
            "1时，分布开始变得对称。<br/>"
            "• "
-           "<b>β（形状参数）</"
-           "b>：β增大，分布峰值向左移动。当α=β=1时退化为均匀分布；当α="
+           "<b>β（形状参数）</b>：β增大，分布峰值向左移动。当α=β=1时退化为均匀分布；当α="
            "β且大于1时，分布对称且峰值越高。";
   }
   QString getUsageScenario() const override {
@@ -665,11 +663,16 @@ public:
   void setParameters(double p1, double p2) override {
     m_N = std::max(1, (int)p1);
     m_K = std::clamp((int)p2, 0, m_N);
+    m_n = std::max(1, std::min(m_n, m_N));
   }
   int getN() const { return m_N; }
   int getK() const { return m_K; }
   int getn() const { return m_n; }
-  void setN(int N) { m_N = std::max(1, N); }
+  void setN(int N) {
+    m_N = std::max(1, N);
+    m_K = std::clamp(m_K, 0, m_N);
+    m_n = std::max(1, std::min(m_n, m_N));
+  }
   void setK(int K) { m_K = std::clamp(K, 0, m_N); }
   void setn(int n) { m_n = std::max(1, std::min(n, m_N)); }
   int getParamCount() const override { return 3; }
@@ -693,7 +696,8 @@ public:
            "<b>K（成功数目）</b>：K/"
            "N决定了成功比例。K越大，成功次数的期望值越高。<br/>"
            "• "
-           "<b>n（样本容量）</b>：n越大，分布的方差越大，但期望始终为n×(K/N)。";
+           "<b>n（样本容量）</b>：n增大时，期望线性增加为n×(K/"
+           "N)，方差先增后减。";
   }
   QString getUsageScenario() const override {
     return "<b>典型案例：质量检测中的无放回抽样方案</b><br/><br/>"
@@ -758,7 +762,7 @@ public:
            "<b>参数影响：</b><br/>"
            "• "
            "<b>df₁（分子自由度）</"
-           "b>：df₁越大，F分布的峰值越靠左，分布越集中。<br/>"
+           "b>：df₁越大，F分布的峰值越靠右，分布越集中。<br/>"
            "• "
            "<b>df₂（分母自由度）</"
            "b>：df₂越大，F分布的尾部越薄，分布越集中。F分布始终为正偏分布。";
