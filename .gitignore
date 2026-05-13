@@ -1,5 +1,6 @@
-# Qt Creator Clangd 缓存（新增核心规则）
+# Qt Creator 缓存文件
 .qtc_clangd/
+.qmake.stash
 
 # 构建目录
 build/
