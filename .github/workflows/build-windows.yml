@@ -1,0 +1,64 @@
+name: Build Windows Release
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          dir: '${{ github.workspace }}'
+          install-deps: 'true'
+          modules: 'qtwebengine qtwebchannel qtpositioning'
+
+      - name: Set up Visual Studio
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure Qt Project
+        run: |
+          qmake VisualStatistics.pro
+
+      - name: Build Project
+        run: |
+          nmake release
+
+      - name: Deploy Qt Dependencies
+        run: |
+          cd release
+          windeployqt VisualStatistics.exe --release --no-translations
+
+      - name: Create Distribution Folder
+        run: |
+          mkdir VisualStatistics-Windows
+          xcopy /E /I release VisualStatistics-Windows
+          echo "Built successfully!" > VisualStatistics-Windows/BUILD_INFO.txt
+          echo "Date: ${{ github.sha }}" >> VisualStatistics-Windows/BUILD_INFO.txt
+
+      - name: Compress to ZIP
+        uses: thedoctor0/zip-release@v0.8.0
+        with:
+          type: 'zip'
+          filename: 'VisualStatistics-Windows.zip'
+          directory: 'VisualStatistics-Windows'
+          path: '.'
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VisualStatistics-Windows
+          path: VisualStatistics-Windows.zip
