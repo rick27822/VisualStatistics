@@ -6,46 +6,45 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-2022
+    runs-on: ubuntu-latest
+    container:
+      image: registry.nju.edu.cn/qt/qt:6.5.0
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-    
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: '6.5.0'
-        host: 'windows'
-        target: 'desktop'
-        modules: 'qtwebengine qtprintsupport'
-        tools: 'tools_vcredist'
-        cache: true
-    
-    - name: Build
-      shell: cmd
+
+    - name: Install MinGW
       run: |
-        mkdir build
+        apt-get update && apt-get install -y mingw-w64
+
+    - name: Build for Windows
+      run: |
+        mkdir -p build
         cd build
-        qmake ..\VisualStatistics.pro CONFIG+=release
-        nmake /NOLOGO
-    
-    - name: Deploy
-      shell: cmd
+        x86_64-w64-mingw32-qmake-qt6 ../VisualStatistics.pro CONFIG+=release
+        x86_64-w64-mingw32-make -j$(nproc)
+
+    - name: Install windeployqt replacement
+      run: |
+        apt-get install -y p7zip-full
+
+    - name: Deploy dependencies
       run: |
         cd build
-        windeployqt VisualStatistics.exe --release
-    
+        mkdir -p deploy
+        cp VisualStatistics.exe deploy/
+        cp /usr/x86_64-w64-mingw32/lib/*.dll deploy/ 2>/dev/null || true
+        cp /opt/qt6/lib/*.dll deploy/ 2>/dev/null || true
+        cp /opt/qt6/plugins/platforms deploy/ -r
+        cp /opt/qt6/plugins/imageformats deploy/ -r
+        cp /opt/qt6/plugins/styles deploy/ -r
+
+    - name: Package
+      run: |
+        cd build/deploy
+        7z a VisualStatistics-windows.zip *
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: VisualStatistics-windows
-        path: |
-          build/VisualStatistics.exe
-          build/*.dll
-          build/platforms/
-          build/imageformats/
-          build/styles/
-          build/QtWebEngineProcess.exe
-          build/resources/
+        path: build/deploy/VisualStatistics-windows.zip
