@@ -10,14 +10,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Qt using Chocolatey
+    - name: Install Qt using Chocolatey (latest version)
       run: |
-        choco install qt6 -y --version=6.5.0
+        choco install qt -y
+    
+    - name: Find Qt installation
+      run: |
+        Get-ChildItem -Path "C:\Qt\" -Recurse -Name | Select-Object -First 20
     
     - name: Build
       shell: cmd
       run: |
-        set PATH=C:\Qt\6.5.0\msvc2019_64\bin;%PATH%
+        for /d %%i in (C:\Qt\*) do set QT_PATH=%%i\msvc2019_64\bin
+        set PATH=%QT_PATH%;%PATH%
         mkdir build
         cd build
         qmake ..\VisualStatistics.pro CONFIG+=release
