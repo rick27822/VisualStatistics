@@ -10,19 +10,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Qt using Chocolatey (latest version)
+    - name: Download Qt Online Installer
       run: |
-        choco install qt -y
+        Invoke-WebRequest -Uri "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe" -OutFile "qt-installer.exe"
     
-    - name: Find Qt installation
+    - name: Install Qt silently
       run: |
-        Get-ChildItem -Path "C:\Qt\" -Recurse -Name | Select-Object -First 20
+        .\qt-installer.exe --accept-licenses --accept-obligations --confirm-command install qt.qt6.650.win64_msvc2019_64
+      timeout-minutes: 60
     
     - name: Build
       shell: cmd
       run: |
-        for /d %%i in (C:\Qt\*) do set QT_PATH=%%i\msvc2019_64\bin
-        set PATH=%QT_PATH%;%PATH%
+        set PATH=C:\Qt\6.5.0\msvc2019_64\bin;%PATH%
         mkdir build
         cd build
         qmake ..\VisualStatistics.pro CONFIG+=release
