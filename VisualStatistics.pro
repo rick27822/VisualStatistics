@@ -7,7 +7,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++17
 
 win32-msvc* {
-    QMAKE_CXXFLAGS += /permissive /Zc:__cplusplus
+    QMAKE_CXXFLAGS_RELEASE -= /permissive-
+    QMAKE_CXXFLAGS_RELEASE += /permissive
+    QMAKE_CXXFLAGS += /Zc:__cplusplus
     DEFINES += _CRT_SECURE_NO_WARNINGS
 }
 
