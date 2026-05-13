@@ -50,12 +50,8 @@ jobs:
           echo "Date: ${{ github.sha }}" >> VisualStatistics-Windows/BUILD_INFO.txt
 
       - name: Compress to ZIP
-        uses: thedoctor0/zip-release@v0.8.0
-        with:
-          type: 'zip'
-          filename: 'VisualStatistics-Windows.zip'
-          directory: 'VisualStatistics-Windows'
-          path: '.'
+        run: |
+          Compress-Archive -Path VisualStatistics-Windows\* -DestinationPath VisualStatistics-Windows.zip
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
