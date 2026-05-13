@@ -3,59 +3,21 @@ name: Build
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  build-macos:
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
-    
-    - name: Install Qt 5.15
-      uses: jurplel/install-qt-action@v3
-      with:
-        version: '5.15.2'
-        host: 'mac'
-        target: 'desktop'
-        modules: 'qtwebengine qtprintsupport'
-    
-    - name: Build
-      run: |
-        mkdir -p build
-        cd build
-        qmake ../VisualStatistics.pro CONFIG+=release
-        make -j$(sysctl -n hw.ncpu)
-    
-    - name: Deploy
-      run: |
-        macdeployqt build/VisualStatistics.app -dmg
-    
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: VisualStatistics-macos
-        path: build/VisualStatistics.dmg
-
   build-windows:
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Qt 5.15
-      uses: jurplel/install-qt-action@v3
-      with:
-        version: '5.15.2'
-        host: 'windows'
-        target: 'desktop'
-        modules: 'qtwebengine qtprintsupport'
+    - name: Install Qt using Chocolatey
+      run: |
+        choco install qt6 -y --version=6.5.0
     
     - name: Build
       shell: cmd
       run: |
+        set PATH=C:\Qt\6.5.0\msvc2019_64\bin;%PATH%
         mkdir build
         cd build
         qmake ..\VisualStatistics.pro CONFIG+=release
@@ -77,7 +39,5 @@ jobs:
           build/platforms/
           build/imageformats/
           build/styles/
-          build/iconengines/
-          build/tls/
           build/QtWebEngineProcess.exe
           build/resources/
