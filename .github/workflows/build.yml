@@ -9,16 +9,18 @@ on:
 jobs:
   build-macos:
     runs-on: macos-14
+    env:
+      QT_QPA_PLATFORM: offscreen
     steps:
     - uses: actions/checkout@v4
     
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.6.0'
+        version: '6.4.3'
         host: 'mac'
         target: 'desktop'
-        modules: 'qtwebengine'
+        modules: 'qtwebengine qtprintsupport'
         cache: true
     
     - name: Build
@@ -26,11 +28,11 @@ jobs:
         mkdir -p build
         cd build
         qmake ../VisualStatistics.pro CONFIG+=release
-        make -j$(nproc)
+        make -j$(sysctl -n hw.ncpu)
     
     - name: Deploy
       run: |
-        macdeployqt build/VisualStatistics.app -dmg
+        macdeployqt build/VisualStatistics.app -dmg -verbose=2
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -40,16 +42,18 @@ jobs:
 
   build-windows:
     runs-on: windows-2022
+    env:
+      QT_QPA_PLATFORM: offscreen
     steps:
     - uses: actions/checkout@v4
     
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.6.0'
+        version: '6.4.3'
         host: 'windows'
         target: 'desktop'
-        modules: 'qtwebengine'
+        modules: 'qtwebengine qtprintsupport'
         cache: true
     
     - name: Build
@@ -58,13 +62,13 @@ jobs:
         mkdir build
         cd build
         qmake ..\VisualStatistics.pro CONFIG+=release
-        nmake
+        nmake /NOLOGO
     
     - name: Deploy
       shell: cmd
       run: |
         cd build
-        windeployqt VisualStatistics.exe --release
+        windeployqt VisualStatistics.exe --release --verbose
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -81,3 +85,4 @@ jobs:
           build/networkinformation/
           build/QtWebEngineProcess.exe
           build/resources/
+          build/translations/
