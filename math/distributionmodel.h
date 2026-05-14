@@ -36,7 +36,8 @@ public:
 
   virtual QString getParam1Name() const = 0;
   virtual QString getParam2Name() const = 0;
-  virtual void setParameters(double p1, double p2) = 0; // 更新参数
+  virtual void setParameters(double p1, double p2,
+                             double p3 = 0) = 0; // 更新参数
 
   virtual int getParamCount() const = 0;
   virtual QList<QString> getParamNames() const = 0;
@@ -62,7 +63,8 @@ public:
   QString getParam1Name() const override { return "期望 (μ)"; }
   QString getParam2Name() const override { return "标准差 (σ)"; }
   QString getName() const override { return "正态分布"; }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2, double p3 = 0) override {
+    Q_UNUSED(p3);
     m_mu = p1;
     m_sigma = p2;
   }
@@ -134,7 +136,8 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Discrete;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2, double p3 = 0) override {
+    Q_UNUSED(p3);
     n = std::max(1, (int)p1);     // n 必须是正整数
     p = std::clamp(p2, 0.0, 1.0); // p 必须在 0 到 1 之间
   }
@@ -196,8 +199,9 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Discrete;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2 = 0, double p3 = 0) override {
     Q_UNUSED(p2);
+    Q_UNUSED(p3);
     m_lambda = std::max(0.01, p1); // λ 必须大于 0
   }
   int getParamCount() const override { return 1; }
@@ -259,7 +263,8 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2, double p3 = 0) override {
+    Q_UNUSED(p3);
     m_a = p1;
     m_b = std::max(p1 + 0.01, p2);
   }
@@ -327,8 +332,9 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2 = 0, double p3 = 0) override {
     Q_UNUSED(p2);
+    Q_UNUSED(p3);
     m_lambda = std::max(0.01, p1); // λ 必须大于 0
   }
   int getParamCount() const override { return 1; }
@@ -389,8 +395,9 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2 = 0, double p3 = 0) override {
     Q_UNUSED(p2);
+    Q_UNUSED(p3);
     m_df = std::max(1.0, p1); // 自由度必须至少为1
   }
   int getParamCount() const override { return 1; }
@@ -454,8 +461,9 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2 = 0, double p3 = 0) override {
     Q_UNUSED(p2);
+    Q_UNUSED(p3);
     m_df = std::max(1.0, p1); // 自由度必须至少为1
   }
   int getParamCount() const override { return 1; }
@@ -521,7 +529,8 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2, double p3 = 0) override {
+    Q_UNUSED(p3);
     m_alpha = std::max(0.01, p1); // α 必须大于 0
     m_beta = std::max(0.01, p2);  // β 必须大于 0
   }
@@ -539,10 +548,10 @@ public:
            "<b>参数影响：</b><br/>"
            "• "
            "<b>α（形状参数）</b>：α增大，分布峰值向右移动；当α&lt;1且β&gt;1时，"
-           "分布在x=0处有峰值（J形）；当α&gt;"
-           "1时，分布开始变得对称。<br/>"
+           "分布在x=0处有峰值（J形）；当α=β&gt;1时，分布对称。<br/>"
            "• "
-           "<b>β（形状参数）</b>：β增大，分布峰值向左移动。当α=β=1时退化为均匀分布；当α="
+           "<b>β（形状参数）</"
+           "b>：β增大，分布峰值向左移动。当α=β=1时退化为均匀分布；当α="
            "β且大于1时，分布对称且峰值越高。";
   }
   QString getUsageScenario() const override {
@@ -594,8 +603,9 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Discrete;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2 = 0, double p3 = 0) override {
     Q_UNUSED(p2);
+    Q_UNUSED(p3);
     m_p = std::clamp(p1, 0.01, 0.99);
   }
   int getParamCount() const override { return 1; }
@@ -660,10 +670,11 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Discrete;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2, double p3 = 0) override {
     m_N = std::max(1, (int)p1);
     m_K = std::clamp((int)p2, 0, m_N);
-    m_n = std::max(1, std::min(m_n, m_N));
+    m_n = (p3 > 0) ? std::max(1, std::min((int)p3, m_N))
+                   : std::max(1, std::min(m_n, m_N));
   }
   int getN() const { return m_N; }
   int getK() const { return m_K; }
@@ -744,7 +755,8 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2, double p3 = 0) override {
+    Q_UNUSED(p3);
     m_df1 = std::max(1.0, p1); // 自由度至少为1
     m_df2 = std::max(1.0, p2);
   }
@@ -815,7 +827,8 @@ public:
   DistributionCategory getCategory() const override {
     return DistributionCategory::Continuous;
   }
-  void setParameters(double p1, double p2) override {
+  void setParameters(double p1, double p2, double p3 = 0) override {
+    Q_UNUSED(p3);
     m_alpha = std::max(0.01, p1); // α 必须大于 0
     m_beta = std::max(0.01, p2);  // β 必须大于 0
   }
@@ -919,6 +932,12 @@ struct DistFactory {
       relations.append(
           {DistType::ChiSquare, "卡方分布由独立标准正态变量平方和构成"});
       relations.append({DistType::StudentT, "t分布在自由度很大时近似正态分布"});
+      relations.append({DistType::Poisson, "泊松分布在λ很大时近似为正态分布"});
+      relations.append(
+          {DistType::Gamma, "伽马分布在形状参数α很大时近似正态分布"});
+      relations.append(
+          {DistType::Uniform,
+           "多个独立均匀分布变量之和通过中心极限定理近似正态分布"});
       break;
     case DistType::Binomial:
       relations.append({DistType::Normal,
@@ -926,18 +945,24 @@ struct DistFactory {
       relations.append({DistType::Poisson, "n→∞，p→0且np=λ时，近似为泊松分布"});
       relations.append(
           {DistType::Hypergeometric, "总体N很大时，超几何分布近似为二项分布"});
+      relations.append({DistType::Geometric,
+                        "几何分布是负二项分布的特殊情况，同属二项分布族"});
       break;
     case DistType::Uniform:
       relations.append(
           {DistType::Uniform,
            "通过逆变换采样(Inverse Transform "
            "Sampling)，均匀分布可以生成任何分布。这是计算机模拟的核心。"});
+      relations.append(
+          {DistType::Normal,
+           "多个独立均匀分布变量之和通过中心极限定理近似正态分布"});
       break;
     case DistType::Poisson:
       relations.append({DistType::Binomial, "二项分布在n→∞，p→0时的极限"});
       relations.append(
           {DistType::Exponential, "指数分布描述泊松过程中事件间隔时间"});
       relations.append({DistType::Normal, "λ很大时近似为正态分布"});
+      relations.append({DistType::Gamma, "与伽马分布存在时间-次数对偶关系"});
       break;
     case DistType::Exponential:
       relations.append(
@@ -960,8 +985,16 @@ struct DistFactory {
           {DistType::Gamma, "X/(X+Y)服从Beta分布，X和Y为独立伽马变量"});
       relations.append({DistType::Uniform, "α=β=1时退化为均匀分布"});
       break;
+    case DistType::Geometric:
+      relations.append(
+          {DistType::Exponential,
+           "当成功概率p很小时，几何分布可近似为指数分布（离散与连续模型）"});
+      relations.append({DistType::Binomial,
+                        "几何分布是负二项分布的特殊情况，同属二项分布族"});
+      break;
     case DistType::Hypergeometric:
-      relations.append({DistType::Binomial, "总体N很大时近似为二项分布"});
+      relations.append(
+          {DistType::Binomial, "总体N很大时或抽样比例很小时，近似为二项分布"});
       break;
     case DistType::FDistribution:
       relations.append({DistType::ChiSquare, "由两个独立卡方变量比构成"});
@@ -971,6 +1004,9 @@ struct DistFactory {
       relations.append({DistType::Exponential, "α=1时退化为指数分布"});
       relations.append({DistType::ChiSquare, "α=df/2, β=1/2时为卡方分布"});
       relations.append({DistType::Beta, "X/(X+Y)服从Beta分布"});
+      relations.append({DistType::Normal, "形状参数α很大时近似正态分布"});
+      relations.append(
+          {DistType::Poisson, "伽马分布与泊松分布存在时间-次数对偶关系"});
       break;
     default:
       break;

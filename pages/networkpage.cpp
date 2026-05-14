@@ -138,41 +138,85 @@ void NetworkPage::updateButtonPositions() {
   int nodeWidth = 155;
   int nodeHeight = 45;
 
-  binomialBtnRect = QRect(centerX - 380, centerY - 100, nodeWidth, nodeHeight);
-  ui->btnBinomial->setGeometry(binomialBtnRect);
+  double radius1 = qMin(w, h) * 0.30;
+  double radius2 = qMin(w, h) * 0.42;
+  double radius3 = qMin(w, h) * 0.55;
 
-  poissonBtnRect = QRect(centerX - 120, centerY - 350, nodeWidth, nodeHeight);
+  double poissonX =
+      centerX + radius2 * cos(30 * M_PI / 180) + nodeWidth / 2 + 20;
+  double poissonY = centerY + radius2 * sin(-15 * M_PI / 180);
+  poissonBtnRect = QRect(poissonX - nodeWidth / 2, poissonY - nodeHeight / 2,
+                         nodeWidth, nodeHeight);
   ui->btnPoisson->setGeometry(poissonBtnRect);
 
-  uniformBtnRect = QRect(centerX + 280, centerY - 280, nodeWidth, nodeHeight);
-  ui->btnUniform->setGeometry(uniformBtnRect);
-
-  exponentialBtnRect =
-      QRect(centerX + 380, centerY - 80, nodeWidth, nodeHeight);
-  ui->btnExponential->setGeometry(exponentialBtnRect);
-
-  studentTBtnRect = QRect(centerX - 600, centerY + 200, nodeWidth, nodeHeight);
-  ui->btnStudentT->setGeometry(studentTBtnRect);
-
-  chiSquareBtnRect = QRect(centerX - 480, centerY + 80, nodeWidth, nodeHeight);
-  ui->btnChiSquare->setGeometry(chiSquareBtnRect);
-
-  betaBtnRect = QRect(centerX - 200, centerY + 250, nodeWidth, nodeHeight);
-  ui->btnBeta->setGeometry(betaBtnRect);
-
-  geometricBtnRect = QRect(centerX + 300, centerY + 280, nodeWidth, nodeHeight);
+  double geometricX =
+      poissonX + radius2 * cos(315 * M_PI / 180 - (-15 * M_PI / 180)) * 0.5;
+  double geometricY =
+      poissonY + radius2 * sin(315 * M_PI / 180 - (-15 * M_PI / 180)) * 0.5;
+  geometricBtnRect = QRect(geometricX - nodeWidth / 2,
+                           geometricY - nodeHeight / 2, nodeWidth, nodeHeight);
   ui->btnGeometric->setGeometry(geometricBtnRect);
 
-  int hypergeometricWidth = 170;
-  hypergeometricBtnRect =
-      QRect(centerX - 500, centerY - 250, hypergeometricWidth, nodeHeight);
-  ui->btnHypergeometric->setGeometry(hypergeometricBtnRect);
+  double exponentialY = centerY + radius2 * sin(30 * M_PI / 180);
+  exponentialBtnRect =
+      QRect(geometricX - nodeWidth / 2, exponentialY - nodeHeight / 2,
+            nodeWidth, nodeHeight);
+  ui->btnExponential->setGeometry(exponentialBtnRect);
 
-  fDistBtnRect = QRect(centerX - 400, centerY + 330, nodeWidth, nodeHeight);
+  double gammaY = centerY + radius1 * sin(60 * M_PI / 180);
+  double gammaX = (centerX + poissonX) / 2;
+  gammaBtnRect = QRect(gammaX - nodeWidth / 2, gammaY - nodeHeight / 2,
+                       nodeWidth, nodeHeight);
+  ui->btnGamma->setGeometry(gammaBtnRect);
+
+  betaBtnRect = QRect(centerX + radius2 * cos(90 * M_PI / 180) - nodeWidth / 2,
+                      centerY + radius2 * sin(90 * M_PI / 180) - nodeHeight / 2,
+                      nodeWidth, nodeHeight);
+  ui->btnBeta->setGeometry(betaBtnRect);
+
+  double studentTOrigX = centerX + radius3 * cos(150 * M_PI / 180);
+  double studentTOrigY = centerY + radius3 * sin(150 * M_PI / 180);
+  double studentTLeftEdge = studentTOrigX - nodeWidth / 2;
+  double shiftLeft = studentTLeftEdge;
+  double shiftRight = 100;
+
+  double uniformOrigX = centerX + radius1 * cos(120 * M_PI / 180);
+  double uniformY = centerY + radius1 * sin(120 * M_PI / 180);
+  uniformBtnRect = QRect(uniformOrigX - shiftLeft + shiftRight - nodeWidth / 2,
+                         uniformY - nodeHeight / 2, nodeWidth, nodeHeight);
+  ui->btnUniform->setGeometry(uniformBtnRect);
+
+  studentTBtnRect =
+      QRect(studentTOrigX - shiftLeft + shiftRight - nodeWidth / 2,
+            exponentialY - nodeHeight / 2, nodeWidth, nodeHeight);
+  ui->btnStudentT->setGeometry(studentTBtnRect);
+
+  double fDistX = 2 * centerX - poissonX;
+  double fDistY = centerY + radius2 * sin(180 * M_PI / 180);
+  fDistBtnRect = QRect(fDistX - nodeWidth / 2, fDistY - nodeHeight / 2,
+                       nodeWidth, nodeHeight);
   ui->btnFDistribution->setGeometry(fDistBtnRect);
 
-  gammaBtnRect = QRect(centerX + 150, centerY + 150, nodeWidth, nodeHeight);
-  ui->btnGamma->setGeometry(gammaBtnRect);
+  double chiSquareX = studentTOrigX - shiftLeft + shiftRight;
+  double chiSquareY = 2 * fDistY - exponentialY;
+  chiSquareBtnRect = QRect(chiSquareX - nodeWidth / 2,
+                           chiSquareY - nodeHeight / 2, nodeWidth, nodeHeight);
+  ui->btnChiSquare->setGeometry(chiSquareBtnRect);
+
+  binomialBtnRect =
+      QRect(centerX + radius2 * cos(270 * M_PI / 180) - nodeWidth / 2,
+            centerY + radius2 * sin(270 * M_PI / 180) - nodeHeight / 2,
+            nodeWidth, nodeHeight);
+  ui->btnBinomial->setGeometry(binomialBtnRect);
+
+  double binomialCenterX = centerX + radius2 * cos(270 * M_PI / 180);
+  double binomialCenterY = centerY + radius2 * sin(270 * M_PI / 180);
+  double hypergeometricX = uniformOrigX - shiftLeft + shiftRight - 100;
+  double hypergeometricY = (binomialCenterY + chiSquareY) / 2;
+  hypergeometricBtnRect =
+      QRect(hypergeometricX - nodeWidth / 2, hypergeometricY - nodeHeight / 2,
+            nodeWidth, nodeHeight);
+  ui->btnHypergeometric->setGeometry(hypergeometricBtnRect);
 }
 
 void NetworkPage::setupRelations() {
@@ -200,9 +244,6 @@ void NetworkPage::setupRelations() {
   // t分布 → F分布
   relations.append({&studentTBtnRect, &fDistBtnRect, "t²(n)=F(1,n)"});
 
-  // 正态分布 → 卡方分布
-  relations.append({&normalBtnRect, &chiSquareBtnRect, "Z₁²+...+Zₖ²~χ²(k)"});
-
   // 伽马分布 → 卡方分布
   relations.append(
       {&gammaBtnRect, &chiSquareBtnRect, "Gamma(α=n/2,β=1/2)=χ²(n)"});
@@ -213,9 +254,38 @@ void NetworkPage::setupRelations() {
   // Gamma ↔ Poisson
   relations.append({&gammaBtnRect, &poissonBtnRect, "Γ↔P:时间-次数"});
 
-  // Geometric → Exponential
+  // 几何分布 → 指数分布
   relations.append(
-      {&geometricBtnRect, &exponentialBtnRect, "几何→指数:间隔→0"});
+      {&geometricBtnRect, &exponentialBtnRect, "p很小时，几何可近似指数"});
+
+  // 正态分布 → t分布
+  relations.append(
+      {&normalBtnRect, &studentTBtnRect, "df→∞时，t分布近似正态分布"});
+
+  // 泊松分布 → 正态分布
+  relations.append({&poissonBtnRect, &normalBtnRect, "λ很大时近似正态分布"});
+
+  // 卡方分布 → 正态分布
+  relations.append({&chiSquareBtnRect, &normalBtnRect, "df很大时近似正态分布"});
+
+  // Beta分布 → 均匀分布
+  relations.append({&betaBtnRect, &uniformBtnRect, "α=β=1时退化为均匀分布"});
+
+  // 伽马分布 → 正态分布
+  relations.append({&gammaBtnRect, &normalBtnRect, "α很大时近似正态分布"});
+
+  // 均匀分布 → 正态分布（通过中心极限定理，多个均匀分布之和）
+  relations.append(
+      {&uniformBtnRect, &normalBtnRect, "多个均匀分布之和近似正态"});
+
+  // 几何分布 →
+  // 二项分布（几何分布是负二项分布的特殊情况，负二项分布在特定条件下与二项分布相关）
+  relations.append(
+      {&geometricBtnRect, &binomialBtnRect, "几何→负二项→二项分布族"});
+
+  // 卡方分布 → F分布
+  relations.append(
+      {&chiSquareBtnRect, &fDistBtnRect, "两个独立卡方变量比服从F分布"});
 }
 
 void NetworkPage::drawBezierCurve(QPainter &painter, const QPoint &start,
